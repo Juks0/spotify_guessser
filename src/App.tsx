@@ -1,5 +1,9 @@
 import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
-import Login from './components/Login';
+import Login from './components/Login.tsx';
+import React from 'react';
+import Callback from "@/components/Callback.js";
+import * as fs from "node:fs";
+import * as https from "node:https";
 
 function Home() {
     const navigate = useNavigate();
@@ -19,6 +23,7 @@ function App() {
             <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/login" element={<Login />} />
+                <Route path="/callback" element={<Callback/>} />
             </Routes>
         </Router>
     );

@@ -1,6 +1,8 @@
+import React from "react";
+
 const Login = () => {
     const handleLogin = () => {
-        window.location.href = 'http://localhost:8888/login';
+        window.location.href = 'https://192.168.1.109:8888/login';
     };
 
     return (
