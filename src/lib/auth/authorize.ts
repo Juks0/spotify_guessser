@@ -9,33 +9,35 @@ import * as https from "node:https";
 
 const client_id = '560440ae985b45a8b13e61974617bd05';
 const client_secret = '7f262b78be8148c194110fad34f96616';
-const redirect_uri = 'https://192.168.1.109:8888/callback'; // <-- Spotify redirect_uri musi być backend!
+const redirect_uri = 'https://192.168.1.119:8888/callback'; // <-- Spotify redirect_uri musi być backend!
 
 const stateKey = 'spotify_auth_state';
-const frontend_uri = 'https://192.168.1.109:5173/'; // <-- frontend adres do redirectu z tokenami
+const frontend_uri = 'https://192.168.1.119:5173'; // <-- frontend adres do redirectu z tokenami
 
 const generateRandomString = (length: number): string =>
     crypto.randomBytes(60).toString('hex').slice(0, length);
 
 const app = express();
-
 const __dirname = import.meta.dirname;
 
 app.use(express.static(__dirname + '/public'))
-    .use(cors())
+    .use(cors({
+        origin: 'https://192.168.1.119:5173',
+        credentials: true
+    }))
     .use(cookieParser());
 
 app.get('/login', (_req: Request, res: Response) => {
     const state = generateRandomString(16);
     res.cookie(stateKey, state);
 
-    const scope = 'user-read-private user-read-email';
+    const scope = 'user.ts-read-private user.ts-read-email';
     res.redirect('https://accounts.spotify.com/authorize?' +
         querystring.stringify({
             response_type: 'code',
             client_id,
             scope,
-            redirect_uri, // <-- Backendowy endpoint!
+            redirect_uri,
             state,
         }));
 });
@@ -76,11 +78,12 @@ app.get('/callback', (req: Request, res: Response) => {
 
                 console.log(access_token);
                 console.log(refresh_token);
-                res.redirect(frontend_uri + '/#' +
-                    querystring.stringify({
-                        access_token,
-                        refresh_token,
-                    }));
+                // res.redirect(frontend_uri + '/#' +
+                //     querystring.stringify({
+                //         access_token,
+                //         refresh_token,
+                //     }));
+                res.redirect(frontend_uri+'/me')
             } else {
                 res.redirect(frontend_uri + '/#' +
                     querystring.stringify({ error: 'invalid_token' }));
@@ -116,8 +119,9 @@ app.get('/refresh_token', (req: Request, res: Response) => {
         }
     });
 });
+
 const httpsOptions = {
-    key: fs.readFileSync('localhost.key'),   // uwzględnij właściwą ścieżkę
+    key: fs.readFileSync('localhost.key'),
     cert: fs.readFileSync('localhost.crt'),
 };
 

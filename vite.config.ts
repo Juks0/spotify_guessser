@@ -5,10 +5,14 @@ import { defineConfig } from "vite"
 import * as fs from "node:fs";
 
 export default defineConfig({
+  optimizeDeps: {
+    exclude: ['express', 'cookie-parser', 'request'],
+  },
   plugins: [react(), tailwindcss()],
   resolve: {
     alias: {
-      "@": path.resolve(__dirname, "./src"),
+      // "@": path.resolve(__dirname, "./src"),
+      "@": path.resolve(__dirname, "src"),
     },
   },
   server: {
