@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 
-const backendApi = 'https://192.168.1.119:8888';
+const backendApi = 'https://192.168.1.100:8888';
 
 interface UserData {
     display_name: string;
@@ -20,7 +20,7 @@ function getFlagEmoji(countryCode: string) {
 const Me = () => {
     const [userData, setUserData] = useState<UserData | null>(null);
     useEffect(() => {
-        console.log('Fetching user.ts data from backend...');
+        console.log('Fetching user data from backend...');
         fetch(backendApi + '/me', { credentials: 'include' })
             .then(res => res.json())
             .then(data => setUserData(data))

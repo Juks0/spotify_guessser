@@ -6,23 +6,25 @@ import querystring from 'querystring';
 import cookieParser from 'cookie-parser';
 import * as fs from "node:fs";
 import * as https from "node:https";
+import userRoute from "@/lib/routers/userRoute.ts";
+import artistRoute from "@/lib/routers/artistRoute.js";
+import trackRoute from "@/lib/routers/trackRoute.js";
 
 const client_id = '560440ae985b45a8b13e61974617bd05';
 const client_secret = '7f262b78be8148c194110fad34f96616';
-const redirect_uri = 'https://192.168.1.119:8888/callback'; // <-- Spotify redirect_uri musi być backend!
+const redirect_uri = 'https://192.168.1.100:8888/callback'; // <-- Spotify redirect_uri musi być backend!
 
 const stateKey = 'spotify_auth_state';
-const frontend_uri = 'https://192.168.1.119:5173'; // <-- frontend adres do redirectu z tokenami
+const frontend_uri = 'https://192.168.1.100:5173'; // <-- frontend adres do redirectu z tokenami
 
 const generateRandomString = (length: number): string =>
     crypto.randomBytes(60).toString('hex').slice(0, length);
 
 const app = express();
 const __dirname = import.meta.dirname;
-
 app.use(express.static(__dirname + '/public'))
     .use(cors({
-        origin: 'https://192.168.1.119:5173',
+        origin: 'https://192.168.1.100:5173',
         credentials: true
     }))
     .use(cookieParser());
@@ -31,7 +33,7 @@ app.get('/login', (_req: Request, res: Response) => {
     const state = generateRandomString(16);
     res.cookie(stateKey, state);
 
-    const scope = 'user.ts-read-private user.ts-read-email';
+    const scope = 'user-read-private user-read-email user-top-read user-read-recently-played user-read-playback-position';
     res.redirect('https://accounts.spotify.com/authorize?' +
         querystring.stringify({
             response_type: 'code',
@@ -119,6 +121,10 @@ app.get('/refresh_token', (req: Request, res: Response) => {
         }
     });
 });
+app.use('/', userRoute);
+app.use('/',artistRoute);
+app.use('/',trackRoute);
+
 
 const httpsOptions = {
     key: fs.readFileSync('localhost.key'),

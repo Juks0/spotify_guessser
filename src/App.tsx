@@ -3,7 +3,9 @@ import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-route
 import Login from './components/Login.tsx';
 import Callback from '@/components/Callback.tsx';
 import Me from '@/components/Me.tsx';
-import Navbar from '@/components/Navbar.tsx'; // dopasuj ścieżkę
+import Navbar from '@/components/Navbar.tsx';
+import TopArtists from "@/components/TopArtists.js";
+import TopTracks from "@/components/TopTracks.js"; // dopasuj ścieżkę
 
 function Home() {
     const navigate = useNavigate();
@@ -26,8 +28,8 @@ function App() {
                 <Route path="/login" element={<Login />} />
                 <Route path="/callback" element={<Callback />} />
                 <Route path="/me" element={<Me />} />
-                <Route path="/top-artists" element={<div>Top Artists Page (dodaj komponent)</div>} />
-                <Route path="/top-tracks" element={<div>Top Tracks Page (dodaj komponent)</div>} />
+                <Route path="/top-artists" element={<TopArtists/>} />
+                <Route path="/top-tracks" element={<TopTracks/>} />
             </Routes>
         </Router>
     );
