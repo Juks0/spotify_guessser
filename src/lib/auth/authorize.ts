@@ -7,15 +7,19 @@ import cookieParser from 'cookie-parser';
 import * as fs from "node:fs";
 import * as https from "node:https";
 import userRoute from "@/lib/routers/userRoute.ts";
-import artistRoute from "@/lib/routers/artistRoute.js";
-import trackRoute from "@/lib/routers/trackRoute.js";
+import artistRoute from "@/lib/routers/topArtistRoute.js";
+import trackRoute from "@/lib/routers/topTrackRoute.js";
+import {forntendUrl} from "@/lib/urls/forntendUrl.js";
+import {backendApiUrl} from "@/lib/urls/backendApiUrl.js";
+import trackDetailRoute from "@/lib/routers/trackDetailRoute.js";
+import artistDetailsRoute from "@/lib/routers/artistDetailsRoute.js";
 
 const client_id = '560440ae985b45a8b13e61974617bd05';
 const client_secret = '7f262b78be8148c194110fad34f96616';
-const redirect_uri = 'https://192.168.1.100:8888/callback'; // <-- Spotify redirect_uri musi być backend!
+const redirect_uri = backendApiUrl+'/callback';
 
 const stateKey = 'spotify_auth_state';
-const frontend_uri = 'https://192.168.1.100:5173'; // <-- frontend adres do redirectu z tokenami
+const frontend_uri = forntendUrl;
 
 const generateRandomString = (length: number): string =>
     crypto.randomBytes(60).toString('hex').slice(0, length);
@@ -24,7 +28,7 @@ const app = express();
 const __dirname = import.meta.dirname;
 app.use(express.static(__dirname + '/public'))
     .use(cors({
-        origin: 'https://192.168.1.100:5173',
+        origin: frontend_uri,
         credentials: true
     }))
     .use(cookieParser());
@@ -77,14 +81,8 @@ app.get('/callback', (req: Request, res: Response) => {
                 const refresh_token = body.refresh_token;
                 res.cookie('access_token', access_token, { httpOnly: true, secure: true });
                 res.cookie('refresh_token', refresh_token, { httpOnly: true, secure: true });
-
                 console.log(access_token);
                 console.log(refresh_token);
-                // res.redirect(frontend_uri + '/#' +
-                //     querystring.stringify({
-                //         access_token,
-                //         refresh_token,
-                //     }));
                 res.redirect(frontend_uri+'/me')
             } else {
                 res.redirect(frontend_uri + '/#' +
@@ -121,9 +119,21 @@ app.get('/refresh_token', (req: Request, res: Response) => {
         }
     });
 });
+
+app.post('/logout', (_req: Request, res: Response) => {
+    console.log("Hit /logout POST");
+    res.clearCookie('access_token', { httpOnly: true, secure: true, sameSite: "lax" });
+    res.clearCookie('refresh_token', { httpOnly: true, secure: true, sameSite: "lax" });
+
+    res.status(200).json({ success: true });
+});
+
 app.use('/', userRoute);
 app.use('/',artistRoute);
 app.use('/',trackRoute);
+app.use('/',trackDetailRoute);
+app.use('/',artistDetailsRoute);
+
 
 
 const httpsOptions = {
