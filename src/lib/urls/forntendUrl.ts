@@ -1,0 +1,1 @@
+export const forntendUrl = "https://192.168.1.105:5173";
