@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
+import {backendApiUrl} from "@/lib/urls/backendApiUrl.js";
 
-const backendApi = 'https://192.168.1.100:8888';
+const backendApi = backendApiUrl
 
 interface UserData {
     display_name: string;
