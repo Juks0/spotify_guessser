@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
+import {backendApiUrl} from "@/lib/urls/backendApiUrl.js";
+import { useNavigate } from 'react-router-dom';
 
-const backendApi = 'https://192.168.1.100:8888';
+const backendApi = backendApiUrl
 
 interface Track {
     id: string;
@@ -16,7 +18,7 @@ const TopTracks = () => {
     const [tracks, setTracks] = useState<Track[]>([]);
     const [timeRange, setTimeRange] = useState('medium_term');
     const [limit, setLimit] = useState(20);
-
+    const navigate = useNavigate();
     const timeRangeOptions = [
         { label: '1 month', value: 'short_term' },
         { label: '6 months', value: 'medium_term' },
@@ -69,8 +71,16 @@ const TopTracks = () => {
                 <ul>
                     {tracks.map(track => (
                         <li key={track.id} style={{ marginBottom: 20 }}>
-                            <h2>{track.name}</h2>
-                            <p>By: {track.artists.map(a => a.name).join(', ')}</p>
+                            <h2
+                                style={{ cursor: 'pointer' }}
+                                onClick={() => navigate(`/track-details/${track.id}`)}
+                            >
+                                {track.name}</h2>
+                            <p
+                                style={{ cursor: 'pointer' }}
+                                onClick={() => navigate(`/track-details/${track.id}`)}
+                            >
+                                By: {track.artists.map(a => a.name).join(', ')}</p>
                             {track.album.images && track.album.images.length > 0 && (
                                 <img src={track.album.images[0].url} alt={track.name} width="200" />
                             )}

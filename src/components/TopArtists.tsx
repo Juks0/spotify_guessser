@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
+import {backendApiUrl} from "@/lib/urls/backendApiUrl.js";
+import {useNavigate} from "react-router-dom";
 
-const backendApi = 'https://192.168.1.100:8888';
+const backendApi = backendApiUrl;
 
 interface Artist {
     id: string;
@@ -14,7 +16,7 @@ const TopArtists = () => {
     const [artists, setArtists] = useState<Artist[]>([]);
     const [timeRange, setTimeRange] = useState('medium_term');
     const [limit, setLimit] = useState(20);
-
+    const navigate = useNavigate();
 
     const timeRangeOptions = [
         { label: '1 month', value: 'short_term' },
@@ -68,7 +70,13 @@ const TopArtists = () => {
                 <ul>
                     {artists.map(artist => (
                         <li key={artist.id} style={{ marginBottom: 20 }}>
-                            <h2>{artist.name}</h2>
+                            <h2
+                                style={{ cursor: 'pointer' }}
+                                onClick={() => navigate(`/artist-details/${artist.id}`)}
+                            >
+                                {artist.name}
+                            </h2>
+
                             {artist.images && artist.images.length > 0 && (
                                 <img src={artist.images[0].url} alt={artist.name} width="200" />
                             )}
