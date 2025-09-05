@@ -1,8 +1,9 @@
 import React from "react";
+import {backendApiUrl} from "@/lib/urls/backendApiUrl.js";
 
 const Login = () => {
     const handleLogin = () => {
-        window.location.href = 'https://192.168.1.100:8888/login';
+        window.location.href = backendApiUrl+'/login';
     };
 
     return (
