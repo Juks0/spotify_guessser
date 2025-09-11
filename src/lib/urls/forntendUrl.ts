@@ -1,1 +1,1 @@
-export const forntendUrl = "https://192.168.1.105:5173";
+export const forntendUrl = "https://192.168.0.8:5173";
