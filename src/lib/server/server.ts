@@ -32,33 +32,49 @@ const io = new Server(httpsServer, {
     },
 });
 
-const rooms: { [key: string]: string[] } = {};
+type Question = { id: number; text: string; options: string[]; answer: number };
+type RoomState = {
+    players: string[];
+    host: string | null;
+    questions: Question[];
+    currentQuestionIndex: number;
+    scores: Record<string, number>;
+    answeredThisRound: Set<string>;
+    timer?: NodeJS.Timeout;
+    roundDeadlineTs?: number; // ms epoch
+    playerNames: Record<string, string>;
+};
 
-const questions = [
-    { id: 1, text: "What is 2 + 2?", options: ["3", "4", "5"], answer: 1 },
-    { id: 2, text: "Capital of France?", options: ["Berlin", "Paris", "Madrid"], answer: 1 },
-];
+const rooms: Record<string, RoomState> = {};
 
 io.on('connection', (socket: Socket) => {
     console.log('New client connected:', socket.id);
 
     socket.on('createRoom', (callback) => {
         const roomCode = uuidv4().slice(0, 6);
-        rooms[roomCode] = [socket.id];
+        rooms[roomCode] = {
+            players: [socket.id],
+            host: socket.id,
+            questions: [],
+            currentQuestionIndex: -1,
+            scores: { [socket.id]: 0 },
+            answeredThisRound: new Set(),
+            playerNames: {},
+        };
         socket.join(roomCode);
         callback({ roomCode });
         console.log(`Room created: ${roomCode}`);
     });
 
     socket.on('joinRoom', (roomCode, callback) => {
-        const room = rooms[roomCode];
-        if (room && room.length < 2) {
-            room.push(socket.id);
+        const state = rooms[roomCode];
+        if (state && state.players.length < 2) {
+            state.players.push(socket.id);
+            state.scores[socket.id] = 0;
             socket.join(roomCode);
             callback({ success: true });
-            if (room.length === 2) {
+            if (state.players.length === 2) {
                 io.to(roomCode).emit('startGame', { roomCode });
-                io.to(roomCode).emit('sendQuestions', questions);
             }
             console.log(`Socket ${socket.id} joined room ${roomCode}`);
         } else {
@@ -66,12 +82,62 @@ io.on('connection', (socket: Socket) => {
         }
     });
 
+    socket.on('setPlayerName', (roomCode: string, name: string) => {
+        const state = rooms[roomCode];
+        if (!state) return;
+        if (!state.players.includes(socket.id)) return;
+        state.playerNames[socket.id] = String(name || '').slice(0, 80);
+    });
+
+    // Host sends prepared questions
+    socket.on('hostQuestions', (roomCode: string, questions: Question[]) => {
+        const state = rooms[roomCode];
+        if (!state) return;
+        if (state.host !== socket.id) return; // Only host can set
+        state.questions = questions.slice(0, 10);
+        state.currentQuestionIndex = -1;
+        io.to(roomCode).emit('sendQuestions', state.questions);
+        // Start the first round
+        startNextRound(roomCode);
+    });
+
+    socket.on('submitAnswer', (roomCode: string, payload: { questionIndex: number; selectedIndex: number; answerTimeMs: number }) => {
+        const state = rooms[roomCode];
+        if (!state) return;
+        const { questionIndex, selectedIndex, answerTimeMs } = payload;
+        if (questionIndex !== state.currentQuestionIndex) return;
+        if (state.answeredThisRound.has(socket.id)) return;
+
+        const currentQuestion = state.questions[questionIndex];
+        const isCorrect = selectedIndex === currentQuestion.answer;
+        if (isCorrect) {
+            const timeScore = Math.max(100, Math.floor(1000 * Math.exp(-Math.max(0, answerTimeMs) / 10000)));
+            state.scores[socket.id] = (state.scores[socket.id] || 0) + timeScore;
+        }
+        state.answeredThisRound.add(socket.id);
+
+        io.to(roomCode).emit('playerAnswered', { playerId: socket.id, isCorrect });
+
+        // If both players answered, end the round early
+        if (state.answeredThisRound.size >= state.players.length) {
+            clearCurrentTimer(state);
+            finishRound(roomCode);
+        }
+    });
+
     socket.on('disconnect', () => {
         for (const roomCode of Object.keys(rooms)) {
-            rooms[roomCode] = rooms[roomCode].filter(id => id !== socket.id);
-            if (rooms[roomCode].length === 0) {
-                delete rooms[roomCode];
-                console.log(`Room ${roomCode} deleted`);
+            const state = rooms[roomCode];
+            const idx = state.players.indexOf(socket.id);
+            if (idx !== -1) {
+                state.players.splice(idx, 1);
+                delete state.scores[socket.id];
+                state.answeredThisRound.delete(socket.id);
+                if (state.players.length === 0) {
+                    clearCurrentTimer(state);
+                    delete rooms[roomCode];
+                    console.log(`Room ${roomCode} deleted`);
+                }
             }
         }
     });
@@ -80,3 +146,44 @@ io.on('connection', (socket: Socket) => {
 httpsServer.listen(3001, () => {
     console.log('HTTPS Server with Socket.IO listening on port 3001');
 });
+
+function clearCurrentTimer(state: RoomState) {
+    if (state.timer) {
+        clearTimeout(state.timer);
+        state.timer = undefined;
+    }
+}
+
+function startNextRound(roomCode: string) {
+    const state = rooms[roomCode];
+    if (!state) return;
+    state.currentQuestionIndex += 1;
+    state.answeredThisRound = new Set();
+
+    if (state.currentQuestionIndex >= state.questions.length || state.currentQuestionIndex >= 10) {
+        // Game over
+        const leaderboard = Object.entries(state.scores)
+            .map(([playerId, score]) => ({ playerId, name: state.playerNames[playerId] || playerId, score }))
+            .sort((a, b) => b.score - a.score);
+        io.to(roomCode).emit('gameOver', { leaderboard });
+        return;
+    }
+
+    const deadline = Date.now() + 15000; // 15s
+    state.roundDeadlineTs = deadline;
+    io.to(roomCode).emit('questionStart', { index: state.currentQuestionIndex, deadline });
+
+    clearCurrentTimer(state);
+    state.timer = setTimeout(() => {
+        finishRound(roomCode);
+    }, 15000);
+}
+
+function finishRound(roomCode: string) {
+    const state = rooms[roomCode];
+    if (!state) return;
+    const index = state.currentQuestionIndex;
+    const correctIndex = state.questions[index]?.answer;
+    io.to(roomCode).emit('questionEnd', { index, correctIndex, scores: state.scores });
+    startNextRound(roomCode);
+}

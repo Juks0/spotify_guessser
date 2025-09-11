@@ -94,7 +94,11 @@ app.get('/callback', (req: Request, res: Response) => {
 });
 
 app.get('/refresh_token', (req: Request, res: Response) => {
-    const refresh_token = req.query.refresh_token as string | undefined;
+    const incomingRefreshToken = (req.query.refresh_token as string | undefined) || req.cookies['refresh_token'];
+
+    if (!incomingRefreshToken) {
+        return res.status(400).json({ error: 'Refresh token not provided' });
+    }
 
     const authOptions = {
         url: 'https://accounts.spotify.com/api/token',
@@ -106,18 +110,31 @@ app.get('/refresh_token', (req: Request, res: Response) => {
         },
         form: {
             grant_type: 'refresh_token',
-            refresh_token,
+            refresh_token: incomingRefreshToken,
         },
         json: true,
     };
 
     request.post(authOptions, (error, response, body) => {
-        if (!error && response.statusCode === 200) {
-            res.send({
-                access_token: body.access_token,
-                refresh_token: body.refresh_token,
-            });
+        if (error) {
+            return res.status(500).json({ error: 'Failed to refresh token' });
         }
+
+        if (response.statusCode !== 200) {
+            return res.status(response.statusCode).json({ error: 'Invalid refresh request' });
+        }
+
+        const newAccessToken = body.access_token as string | undefined;
+        const newRefreshToken = body.refresh_token as string | undefined;
+
+        if (newAccessToken) {
+            res.cookie('access_token', newAccessToken, { httpOnly: true, secure: true });
+        }
+        if (newRefreshToken) {
+            res.cookie('refresh_token', newRefreshToken, { httpOnly: true, secure: true });
+        }
+
+        return res.status(200).json({ success: true });
     });
 });
 
