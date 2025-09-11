@@ -8,7 +8,7 @@ import TopArtists from "@/components/TopArtists.js";
 import TopTracks from "@/components/TopTracks.js";
 import TrackDetailsWrapper from "@/assets/wrappers/TrackDetailsWrapper.tsx";
 import ArtistDetailsWrapper from "@/assets/wrappers/ArtistDetailsWrapper.tsx";
-
+// import QuizGame from "@/components/QuizGame.tsx";
 
 function Home() {
 
@@ -35,6 +35,8 @@ function App() {
                 <Route path="/top-tracks" element={<TopTracks/>} />
                 <Route path="/track-details/:trackId" element={<TrackDetailsWrapper />} />
                 <Route path="/artist-details/:artistId" element={<ArtistDetailsWrapper />} />
+                {/*<Route path="/quiz-game/" element={<QuizGame />} />*/}
+
 
             </Routes>
         </Router>
