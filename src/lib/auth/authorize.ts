@@ -13,6 +13,7 @@ import {forntendUrl} from "@/lib/urls/forntendUrl.js";
 import {backendApiUrl} from "@/lib/urls/backendApiUrl.js";
 import trackDetailRoute from "@/lib/routers/trackDetailRoute.js";
 import artistDetailsRoute from "@/lib/routers/artistDetailsRoute.js";
+import quizQuestions from "@/lib/routers/quizQuestions.js";
 
 const client_id = '560440ae985b45a8b13e61974617bd05';
 const client_secret = '7f262b78be8148c194110fad34f96616';
@@ -133,12 +134,12 @@ app.use('/',artistRoute);
 app.use('/',trackRoute);
 app.use('/',trackDetailRoute);
 app.use('/',artistDetailsRoute);
-
+app.use('/',quizQuestions);
 
 
 const httpsOptions = {
-    key: fs.readFileSync('localhost.key'),
-    cert: fs.readFileSync('localhost.crt'),
+    key: fs.readFileSync('private.key'),
+    cert: fs.readFileSync('certificate.crt'),
 };
 
 https.createServer(httpsOptions, app).listen(8888, () => {
