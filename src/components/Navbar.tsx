@@ -23,7 +23,7 @@ const Navbar: React.FC = () => {
 
     useEffect(() => {
         fetchAuthStatus();
-        const interval = setInterval(fetchAuthStatus, 3000);
+        const interval = setInterval(fetchAuthStatus, 300000); // <= change it to 3000 ms later
         return () => clearInterval(interval);
     }, []);
 
