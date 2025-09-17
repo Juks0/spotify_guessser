@@ -9,6 +9,7 @@ interface UserData {
     images: { url: string }[];
     country: string;
 }
+
 function getFlagEmoji(countryCode: string) {
     if (!countryCode) return '';
     const codePoints = countryCode

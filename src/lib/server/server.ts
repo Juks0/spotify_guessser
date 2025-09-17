@@ -6,6 +6,7 @@ import { Server, Socket } from 'socket.io';
 import { v4 as uuidv4 } from 'uuid';
 import { forntendUrl } from "@/lib/urls/forntendUrl.js";
 import cookieParser from "cookie-parser";
+import { saveGameResult } from '../database/services.js';
 
 const app = express();
 const __dirname = import.meta.dirname;
@@ -43,6 +44,7 @@ type RoomState = {
     timer?: NodeJS.Timeout;
     roundDeadlineTs?: number; // ms epoch
     playerNames: Record<string, string>;
+    playerDbIds: Record<string, number>; // Map socket.id to database user ID
 };
 
 const rooms: Record<string, RoomState> = {};
@@ -60,6 +62,7 @@ io.on('connection', (socket: Socket) => {
             scores: { [socket.id]: 0 },
             answeredThisRound: new Set(),
             playerNames: {},
+            playerDbIds: {},
         };
         socket.join(roomCode);
         callback({ roomCode });
@@ -87,6 +90,13 @@ io.on('connection', (socket: Socket) => {
         if (!state) return;
         if (!state.players.includes(socket.id)) return;
         state.playerNames[socket.id] = String(name || '').slice(0, 80);
+    });
+
+    socket.on('setPlayerDbId', (roomCode: string, dbId: number) => {
+        const state = rooms[roomCode];
+        if (!state) return;
+        if (!state.players.includes(socket.id)) return;
+        state.playerDbIds[socket.id] = dbId;
     });
 
     // Host sends prepared questions
@@ -154,14 +164,31 @@ function clearCurrentTimer(state: RoomState) {
     }
 }
 
-function startNextRound(roomCode: string) {
+async function startNextRound(roomCode: string) {
     const state = rooms[roomCode];
     if (!state) return;
     state.currentQuestionIndex += 1;
     state.answeredThisRound = new Set();
 
     if (state.currentQuestionIndex >= state.questions.length || state.currentQuestionIndex >= 10) {
-        // Game over
+        // Game over - save results to database
+        const players = Object.keys(state.scores);
+        if (players.length === 2) {
+            const player1Id = state.playerDbIds[players[0]];
+            const player2Id = state.playerDbIds[players[1]];
+            const player1Score = state.scores[players[0]];
+            const player2Score = state.scores[players[1]];
+            
+            if (player1Id && player2Id) {
+                try {
+                    await saveGameResult(roomCode, player1Id, player2Id, player1Score, player2Score);
+                    console.log(`Game result saved for room ${roomCode}`);
+                } catch (error) {
+                    console.error('Failed to save game result:', error);
+                }
+            }
+        }
+        
         const leaderboard = Object.entries(state.scores)
             .map(([playerId, score]) => ({ playerId, name: state.playerNames[playerId] || playerId, score }))
             .sort((a, b) => b.score - a.score);
@@ -174,16 +201,16 @@ function startNextRound(roomCode: string) {
     io.to(roomCode).emit('questionStart', { index: state.currentQuestionIndex, deadline });
 
     clearCurrentTimer(state);
-    state.timer = setTimeout(() => {
-        finishRound(roomCode);
+    state.timer = setTimeout(async () => {
+        await finishRound(roomCode);
     }, 15000);
 }
 
-function finishRound(roomCode: string) {
+async function finishRound(roomCode: string) {
     const state = rooms[roomCode];
     if (!state) return;
     const index = state.currentQuestionIndex;
     const correctIndex = state.questions[index]?.answer;
     io.to(roomCode).emit('questionEnd', { index, correctIndex, scores: state.scores });
-    startNextRound(roomCode);
+    await startNextRound(roomCode);
 }

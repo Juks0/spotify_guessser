@@ -12,17 +12,15 @@ interface Question {
     text: string;
     options: string[];
     answer: number;
+    imageUrl?: string;
 }
 
 const socket: Socket = io(serverBackendApiUrl, {
     secure: true,
     rejectUnauthorized: false, // Remove after setting proper SSL !!!
 });
-// const questions = [
-//     { id: 1, text: "How many albums does this artist have?", options: ["3", "4", "5"], answer: 1 },
-//     { id: 2, text: "Capital of France?", options: ["Berlin", "Paris", "Madrid"], answer: 1 },
-// ];
-type SimplifiedAlbum = { id: string; name: string; total_tracks: number };
+
+type SimplifiedAlbum = { id: string; name: string; total_tracks: number; image?: string };
 type SimplifiedTrack = { id: string; name: string; albumId: string };
 
 const fetchTopArtists = async (): Promise<Artist[]> => {
@@ -67,6 +65,7 @@ const App: React.FC = () => {
     const [leaderboard, setLeaderboard] = useState<{ playerId: string; name?: string; score: number }[] | null>(null);
     const [displayName, setDisplayName] = useState<string>('');
     const [preGameCountdown, setPreGameCountdown] = useState<number>(0);
+    const [dbUserId, setDbUserId] = useState<number | null>(null);
     const [roomCode, setRoomCode] = useState('');
     const [inputCode, setInputCode] = useState('');
     const [inRoom, setInRoom] = useState(false);
@@ -138,6 +137,16 @@ const App: React.FC = () => {
         then(setTopArtists).
         catch(console.error);
 
+        // Get user's database ID
+        fetch(`${backendApi}/me`, { credentials: 'include' })
+            .then(res => res.json())
+            .then(data => {
+                if (data.db_user_id) {
+                    setDbUserId(data.db_user_id);
+                }
+            })
+            .catch(console.error);
+
         return () => {
             socket.off('startGame');
             socket.off('sendQuestions');
@@ -159,7 +168,7 @@ const App: React.FC = () => {
             credentials: 'include'
         });
         const data = await res.json();
-        const albums: SimplifiedAlbum[] = (data.items || []).map((a: any) => ({ id: a.id, name: a.name, total_tracks: a.total_tracks }));
+        const albums: SimplifiedAlbum[] = (data.items || []).map((a: any) => ({ id: a.id, name: a.name, total_tracks: a.total_tracks, image: a.images && a.images[0] ? a.images[0].url : undefined }));
         artistIdToAlbumsCache.current.set(artistId, albums);
         return albums;
     };
@@ -240,25 +249,29 @@ const App: React.FC = () => {
                     id: 1,
                     text: `How many albums does ${artistA.name} have?`,
                     options: q1Options.map(String),
-                    answer: q1CorrectIndex
+                    answer: q1CorrectIndex,
+                    imageUrl: artistA.image
                 },
                 {
                     id: 2,
                     text: `Which is a top track by ${artistB.name}?`,
                     options: topTrackOptions,
-                    answer: q2CorrectIndex
+                    answer: q2CorrectIndex,
+                    imageUrl: artistB.image
                 },
                 {
                     id: 3,
                     text: `Which album is the song "${trackName}" from?`,
                     options: q3Options,
-                    answer: q3CorrectIndex
+                    answer: q3CorrectIndex,
+                    imageUrl: randomAlbumC?.image
                 },
                 {
                     id: 4,
                     text: `How many tracks does the album "${randomAlbumA?.name || 'Unknown'}" have?`,
                     options: q4Options.map(String),
-                    answer: q4CorrectIndex
+                    answer: q4CorrectIndex,
+                    imageUrl: randomAlbumA?.image
                 }
             ];
 
@@ -278,6 +291,9 @@ const App: React.FC = () => {
             if (displayName.trim()) {
                 socket.emit('setPlayerName', roomCode, displayName.trim());
             }
+            if (dbUserId) {
+                socket.emit('setPlayerDbId', roomCode, dbUserId);
+            }
         });
     };
 
@@ -293,6 +309,9 @@ const App: React.FC = () => {
                 setStatusMessage(`Joined room ${inputCode.trim()}. Waiting for the game to start...`);
                 if (displayName.trim()) {
                     socket.emit('setPlayerName', inputCode.trim(), displayName.trim());
+                }
+                if (dbUserId) {
+                    socket.emit('setPlayerDbId', inputCode.trim(), dbUserId);
                 }
             } else {
                 setStatusMessage(message || 'Failed to join room');
@@ -362,6 +381,11 @@ const App: React.FC = () => {
                 <p>Score: {score}</p>
                 {deadlineTs && (
                     <p>Time left: {remainingSec}s</p>
+                )}
+                {question.imageUrl && (
+                    <div style={{ margin: '12px 0' }}>
+                        <img src={question.imageUrl} alt="question" style={{ maxWidth: 240, borderRadius: 8 }} />
+                    </div>
                 )}
                 <ul style={{ listStyle: 'none', padding: 0 }}>
                     {question.options.map((option, i) => (
