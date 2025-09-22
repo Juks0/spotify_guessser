@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
 import querystring from 'querystring';
-import { createOrUpdateUser, saveTopArtists } from '../database/services';
+import { createOrUpdateUser, saveTopArtists } from '../database/services.js';
 
 const router = Router();
 

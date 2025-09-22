@@ -4,10 +4,12 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "concurrently \"npm run dev:frontend\" \"npm run dev:backend\" \"npm run dev:backend2\"",
+    "dev": "concurrently \"npm run dev:frontend\" \"npm run dev:backend\" \"npm run db:check\"",
     "dev:frontend": "vite --host",
-    "dev:backend": "tsx src/lib/auth/authorize.ts tsx src/lib/server/server.ts",
-    "dev:backend2": "tsx src/lib/server/server.ts",
+    "dev:backend": "concurrently \"npm:dev:backend-auth\" \"npm:dev:backend-socket\"",
+    "dev:backend-auth": "tsx src/lib/auth/authorize.ts",
+    "dev:backend-socket": "tsx src/lib/server/server.ts",
+    "db:check": "node -e \"(async()=>{const { Pool } = await import('pg'); const pool = new Pool({ user: 'kacper', host: 'localhost', database: 'DatabaseSpotifyApp', password: '', port: 5432 }); try { const r = await pool.query('SELECT NOW() as now'); console.log('DB OK:', r.rows[0].now); } catch(e){ console.error('DB FAIL:', e.message); process.exit(1);} finally { await pool.end(); } })();\"",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview"

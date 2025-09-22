@@ -7,9 +7,7 @@ const pool = new Pool({
   password: '', // kacper user might not need password or use different auth
   port: 5432,
 });
-
 export default pool;
-
 
 
 //   password: 'P@ssw0rd_771ah#3',

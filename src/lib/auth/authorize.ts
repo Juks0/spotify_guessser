@@ -159,7 +159,23 @@ const httpsOptions = {
     cert: fs.readFileSync('certificate.crt'),
 };
 
-https.createServer(httpsOptions, app).listen(8888, () => {
-    console.log('HTTPS Express listening on 8888');
-});
+const desiredPort = Number(process.env.AUTH_PORT) || 8888;
+
+function startHttpsServer(port: number) {
+    const server = https.createServer(httpsOptions, app);
+    server.on('error', (err: any) => {
+        if (err && err.code === 'EADDRINUSE') {
+            console.warn(`Port ${port} in use for auth server, trying ${port + 1}...`);
+            // Try next port
+            startHttpsServer(port + 1);
+        } else {
+            throw err;
+        }
+    });
+    server.listen(port, () => {
+        console.log(`HTTPS Express listening on ${port}`);
+    });
+}
+
+startHttpsServer(desiredPort);
 

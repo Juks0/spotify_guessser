@@ -1,4 +1,4 @@
-import pool from './database';
+import pool from './database.ts';
 
 export interface User {
   id: number;
@@ -24,6 +24,39 @@ export interface TopArtist {
   rank: number;
   time_range: '1month' | '6months' | '1year';
 }
+// Top tracks operations
+export interface TopTrack {
+  user_id: number;
+  track_name: string;
+  artist_name: string;
+  rank: number;
+  time_range: '1month' | '6months' | '1year';
+}
+
+export const saveTopTracks = async (userId: number, tracks: {name: string, artists: {name: string}[]}[], timeRange: '1month' | '6months' | '1year'): Promise<void> => {
+  const tableName = `user_top_tracks_${timeRange === '1month' ? '1month' : timeRange === '6months' ? '6months' : '1year'}`;
+  
+  // Clear existing data for this user and time range
+  await pool.query(`DELETE FROM ${tableName} WHERE user_id = $1`, [userId]);
+  
+  // Insert new data
+  for (let i = 0; i < tracks.length; i++) {
+    const track = tracks[i];
+    const artistName = track.artists && track.artists.length > 0 ? track.artists[0].name : 'Unknown Artist';
+    
+    await pool.query(
+      `INSERT INTO ${tableName} (user_id, track_name, artist_name, rank) VALUES ($1, $2, $3, $4)`,
+      [userId, track.name, artistName, i + 1]
+    );
+  }
+};
+
+export const getTopTracks = async (userId: number, timeRange: '1month' | '6months' | '1year'): Promise<{track_name: string, artist_name: string}[]> => {
+  const tableName = `user_top_tracks_${timeRange === '1month' ? '1month' : timeRange === '6months' ? '6months' : '1year'}`;
+  const query = `SELECT track_name, artist_name FROM ${tableName} WHERE user_id = $1 ORDER BY rank`;
+  const result = await pool.query(query, [userId]);
+  return result.rows;
+};
 
 // User operations
 export const createOrUpdateUser = async (spotifyId: string, displayName: string, imageUrl?: string): Promise<User> => {
@@ -50,7 +83,6 @@ export const getUserByUsername = async (username: string): Promise<User | null> 
 // Top artists operations
 export const saveTopArtists = async (userId: number, artists: string[], timeRange: '1month' | '6months' | '1year'): Promise<void> => {
   const tableName = `user_top_artists_${timeRange === '1month' ? '1month' : timeRange === '6months' ? '6months' : '1year'}`;
-  
   // Clear existing data for this user and time range
   await pool.query(`DELETE FROM ${tableName} WHERE user_id = $1`, [userId]);
   
