@@ -1,1 +1,0 @@
-export const forntendUrl = "https://192.168.0.8:5173";

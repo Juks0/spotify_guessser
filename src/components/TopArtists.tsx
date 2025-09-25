@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import {backendApiUrl} from "@/lib/urls/backendApiUrl.js";
 import {useNavigate} from "react-router-dom";
 
-const backendApi = backendApiUrl;
+const backendApiUrl = import.meta.env.VITE_BACKEND_URL;
 
 interface Artist {
     id: string;
@@ -33,7 +32,7 @@ const TopArtists = () => {
             limit: limit.toString(),
         });
 
-        fetch(`${backendApi}/topartists?${params.toString()}`, { credentials: 'include' })
+        fetch(`${backendApiUrl}/topartists?${params.toString()}`, { credentials: 'include' })
             .then(res => res.json())
             .then(data => {
                 console.log('Received ', data);

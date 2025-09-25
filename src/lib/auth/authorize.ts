@@ -1,3 +1,5 @@
+import dotenv from 'dotenv';
+dotenv.config();
 import express, { Request, Response } from 'express';
 import request from 'request';
 import crypto from 'crypto';
@@ -7,20 +9,25 @@ import cookieParser from 'cookie-parser';
 import * as fs from "node:fs";
 import * as https from "node:https";
 import userRoute from "@/lib/routers/userRoute.ts";
-import artistRoute from "@/lib/routers/topArtistRoute.js";
-import trackRoute from "@/lib/routers/topTrackRoute.js";
-import {forntendUrl} from "@/lib/urls/forntendUrl.js";
-import {backendApiUrl} from "@/lib/urls/backendApiUrl.js";
-import trackDetailRoute from "@/lib/routers/trackDetailRoute.js";
-import artistDetailsRoute from "@/lib/routers/artistDetailsRoute.js";
-import quizQuestions from "@/lib/routers/quizQuestions.js";
+import artistRoute from "@/lib/routers/topArtistRoute.ts";
+import trackRoute from "@/lib/routers/topTrackRoute.ts";
+import trackDetailRoute from "@/lib/routers/trackDetailRoute.ts";
+import artistDetailsRoute from "@/lib/routers/artistDetailsRoute.ts";
+import quizQuestions from "@/lib/routers/quizQuestions.ts";
+// DODANE IMPORTY
+import playbackRoute from "@/lib/routers/playbackRoute.ts";
+import friendsRoute from "@/lib/routers/friendsRoute.ts";
+import tokenRoute from "@/lib/routers/tokenRoute.ts";
 
 const client_id = '560440ae985b45a8b13e61974617bd05';
 const client_secret = '7f262b78be8148c194110fad34f96616';
+const backendApiUrl = process.env.VITE_BACKEND_URL;
+const frontend_uri = process.env.VITE_FRONTEND_URL;
+
 const redirect_uri = backendApiUrl+'/callback';
 
 const stateKey = 'spotify_auth_state';
-const frontend_uri = forntendUrl;
+
 
 const generateRandomString = (length: number): string =>
     crypto.randomBytes(60).toString('hex').slice(0, length);
@@ -32,13 +39,31 @@ app.use(express.static(__dirname + '/public'))
         origin: frontend_uri,
         credentials: true
     }))
-    .use(cookieParser());
+    .use(cookieParser())
+    .use(express.json()); // DODANE - potrzebne dla POST requestów
 
 app.get('/login', (_req: Request, res: Response) => {
     const state = generateRandomString(16);
     res.cookie(stateKey, state);
+    console.log('🔍 DEBUG INFO:');
+    console.log('Client ID:', client_id);
+    console.log('Backend URL:', backendApiUrl);  
+    console.log('Frontend URL:', frontend_uri);
+    console.log('Redirect URI:', redirect_uri);
+    console.log('Full redirect URL will be:', redirect_uri);
 
-    const scope = 'user-read-private user-read-email user-top-read user-read-recently-played user-read-playback-position';
+    // ROZSZERZONE SCOPES
+    const scope = [
+        'user-read-private',
+        'user-read-email', 
+        'user-top-read',
+        'user-read-recently-played',
+        'user-read-playback-position',
+        'user-read-playback-state',      // Playback
+        'user-modify-playback-state',    // Playback controls
+        'user-read-currently-playing'    // Currently playing
+    ].join(' ');
+
     res.redirect('https://accounts.spotify.com/authorize?' +
         querystring.stringify({
             response_type: 'code',
@@ -80,12 +105,22 @@ app.get('/callback', (req: Request, res: Response) => {
             if (!error && response.statusCode === 200) {
                 const access_token = body.access_token;
                 const refresh_token = body.refresh_token;
-                res.cookie('access_token', access_token, { httpOnly: true, secure: true });
-                res.cookie('refresh_token', refresh_token, { httpOnly: true, secure: true });
-                console.log(access_token);
-                console.log(refresh_token);
+                
+                res.cookie('access_token', access_token, { 
+                    httpOnly: true, 
+                    secure: process.env.NODE_ENV === 'production',
+                    sameSite: 'lax'
+                });
+                res.cookie('refresh_token', refresh_token, { 
+                    httpOnly: true, 
+                    secure: process.env.NODE_ENV === 'production',
+                    sameSite: 'lax'
+                });
+                
+                console.log('✅ Tokens set successfully');
                 res.redirect(frontend_uri+'/me')
             } else {
+                console.error('❌ Token error:', error, body);
                 res.redirect(frontend_uri + '/#' +
                     querystring.stringify({ error: 'invalid_token' }));
             }
@@ -128,10 +163,18 @@ app.get('/refresh_token', (req: Request, res: Response) => {
         const newRefreshToken = body.refresh_token as string | undefined;
 
         if (newAccessToken) {
-            res.cookie('access_token', newAccessToken, { httpOnly: true, secure: true });
+            res.cookie('access_token', newAccessToken, { 
+                httpOnly: true, 
+                secure: process.env.NODE_ENV === 'production',
+                sameSite: 'lax'
+            });
         }
         if (newRefreshToken) {
-            res.cookie('refresh_token', newRefreshToken, { httpOnly: true, secure: true });
+            res.cookie('refresh_token', newRefreshToken, { 
+                httpOnly: true, 
+                secure: process.env.NODE_ENV === 'production',
+                sameSite: 'lax'
+            });
         }
 
         return res.status(200).json({ success: true });
@@ -139,20 +182,22 @@ app.get('/refresh_token', (req: Request, res: Response) => {
 });
 
 app.post('/logout', (_req: Request, res: Response) => {
-    console.log("Hit /logout POST");
-    res.clearCookie('access_token', { httpOnly: true, secure: true, sameSite: "lax" });
-    res.clearCookie('refresh_token', { httpOnly: true, secure: true, sameSite: "lax" });
+    console.log("🚪 Hit /logout POST");
+    res.clearCookie('access_token', { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: "lax" });
+    res.clearCookie('refresh_token', { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: "lax" });
 
     res.status(200).json({ success: true });
 });
 
 app.use('/', userRoute);
-app.use('/',artistRoute);
-app.use('/',trackRoute);
-app.use('/',trackDetailRoute);
-app.use('/',artistDetailsRoute);
-app.use('/',quizQuestions);
-
+app.use('/', artistRoute);
+app.use('/', trackRoute);
+app.use('/', trackDetailRoute);
+app.use('/', artistDetailsRoute);
+app.use('/', quizQuestions);
+app.use('/spotify', playbackRoute);  
+app.use('/', friendsRoute);
+app.use('/token', tokenRoute);
 
 const httpsOptions = {
     key: fs.readFileSync('private.key'),
@@ -165,17 +210,16 @@ function startHttpsServer(port: number) {
     const server = https.createServer(httpsOptions, app);
     server.on('error', (err: any) => {
         if (err && err.code === 'EADDRINUSE') {
-            console.warn(`Port ${port} in use for auth server, trying ${port + 1}...`);
-            // Try next port
+            console.warn(`⚠️ Port ${port} in use for auth server, trying ${port + 1}...`);
             startHttpsServer(port + 1);
         } else {
             throw err;
         }
     });
     server.listen(port, () => {
-        console.log(`HTTPS Express listening on ${port}`);
+        console.log(`🔐 HTTPS Express listening on ${port}`);
+        console.log(`🎵 Playback routes available at /spotify/*`);
     });
 }
 
 startHttpsServer(desiredPort);
-

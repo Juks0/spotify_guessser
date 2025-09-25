@@ -1,8 +1,8 @@
 -- Users table
 CREATE TABLE users (
-  id SERIAL PRIMARY KEY,
+  id INTEGER PRIMARY KEY,  -- BEZ SERIAL!
   username VARCHAR(50) UNIQUE NOT NULL,
-  image BYTEA,            -- Or VARCHAR if storing image URLs
+  image BYTEA,
   last_login TIMESTAMP
 );
 
@@ -40,3 +40,5 @@ CREATE TABLE friends (
 
 -- Index to speed friend lookups
 CREATE INDEX idx_friends_user ON friends(user_id);
+
+

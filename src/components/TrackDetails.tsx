@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { backendApiUrl } from "@/lib/urls/backendApiUrl.js";
 import { useNavigate } from "react-router-dom";
+
+const backendApiUrl = import.meta.env.VITE_BACKEND_URL;
 
 interface Artist {
     id: string;                  // e.g. "4lmMkf4tLyEKBslusiNZdu"

@@ -1,5 +1,6 @@
 import React from "react";
-import {backendApiUrl} from "@/lib/urls/backendApiUrl.js";
+
+const backendApiUrl = import.meta.env.VITE_BACKEND_URL;
 
 const Login = () => {
     const handleLogin = () => {

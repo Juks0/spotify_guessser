@@ -1,26 +1,71 @@
-# Logs
-logs
+# ===== ENVIRONMENT & SECRETS =====
+.env
+.env.local
+.env.production
+.env.staging
+*.env
+
+# ===== SSL CERTIFICATES =====
+*.pem
+*.crt
+*.key
+*.csr
+certificate.crt
+private.key
+192.168.0.8-key.pem
+192.168.0.8.pem
+request.csr
+
+# ===== NODE.JS =====
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+package-lock.json
+
+# ===== BUILD & DIST =====
+dist/
+build/
+*.tgz
+*.tar.gz
+
+# ===== IDE & EDITORS =====
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ===== OPERATING SYSTEM =====
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# ===== LOGS =====
+logs/
 *.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
-*.local
+# ===== DATABASE =====
+*.db
+*.sqlite
+*.sqlite3
 
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
-.DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
+# ===== TEMPORARY FILES =====
+tmp/
+temp/
+*.tmp
+*.bak
+*.backup
 
-/generated/prisma
+
+# ===== PROJECT SPECIFIC =====
+notes
+database inster query

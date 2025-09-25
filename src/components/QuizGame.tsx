@@ -1,11 +1,10 @@
 import React, {useEffect, useMemo, useRef, useState} from 'react';
 import {io, Socket} from 'socket.io-client';
-import {serverBackendApiUrl} from "@/lib/urls/serverBackendApiUrl.ts";
-import {backendApiUrl} from "@/lib/urls/backendApiUrl.js";
 import {Artist} from "@/components/models/Artist.js";
 import {SpotifyArtist} from "@/components/models/SpotifyData.js";
 
-const backendApi = backendApiUrl;
+const backendApiUrl = import.meta.env.VITE_BACKEND_URL;
+const serverBackendApiUrl = import.meta.env.SERVER_BACKEND_URL;
 
 interface Question {
     id: number;
@@ -17,7 +16,6 @@ interface Question {
 
 const socket: Socket = io(serverBackendApiUrl, {
     secure: true,
-    rejectUnauthorized: false, // Remove after setting proper SSL !!!
 });
 
 type SimplifiedAlbum = { id: string; name: string; total_tracks: number; image?: string };
@@ -29,7 +27,7 @@ const fetchTopArtists = async (): Promise<Artist[]> => {
         limit: "50",
     });
 
-    const response = await fetch(`${backendApi}/topartists?${params.toString()}`, {
+    const response = await fetch(`${backendApiUrl}/topartists?${params.toString()}`, {
         credentials: 'include'
     });
     const data = await response.json();
@@ -81,7 +79,18 @@ const App: React.FC = () => {
         let interval: number | undefined;
 
         socket.on('connect', () => {
+            console.log('Socket connected with ID:', socket.id);
             setMyId(socket.id || '');
+        });
+
+        socket.on('disconnect', () => {
+            console.log('Socket disconnected');
+            setStatusMessage('Connection lost. Please refresh the page.');
+        });
+
+        socket.on('connect_error', (error) => {
+            console.error('Socket connection error:', error);
+            setStatusMessage('Connection failed. Please check your internet connection.');
         });
         socket.on('startGame', ({ roomCode }) => {
             setStatusMessage(`Game starting...`);
@@ -116,7 +125,7 @@ const App: React.FC = () => {
             setDeadlineTs(deadline);
             setAnswered(false);
             if (interval) window.clearInterval(interval);
-            interval = window.setInterval(onTick, 200);
+            interval = window.setInterval(onTick, 10000);
         });
 
         socket.on('questionEnd', ({ index, correctIndex, scores }: { index: number; correctIndex: number; scores: Record<string, number> }) => {
@@ -137,12 +146,15 @@ const App: React.FC = () => {
         then(setTopArtists).
         catch(console.error);
 
-        // Get user's database ID
-        fetch(`${backendApi}/me`, { credentials: 'include' })
+        // Get user's database ID and username
+        fetch(`${backendApiUrl}/me`, { credentials: 'include' })
             .then(res => res.json())
             .then(data => {
                 if (data.db_user_id) {
                     setDbUserId(data.db_user_id);
+                }
+                if (data.db_username) {
+                    setDisplayName(data.db_username);
                 }
             })
             .catch(console.error);
@@ -154,6 +166,8 @@ const App: React.FC = () => {
             socket.off('questionEnd');
             socket.off('gameOver');
             socket.off('connect');
+            socket.off('disconnect');
+            socket.off('connect_error');
             if (interval) window.clearInterval(interval);
         };
     }, []);
@@ -164,7 +178,7 @@ const App: React.FC = () => {
         const cached = artistIdToAlbumsCache.current.get(artistId);
         if (cached) return cached;
         const params = new URLSearchParams({ include_groups: 'album', limit: '12' });
-        const res = await fetch(`${backendApi}/artistsalbums?id=${encodeURIComponent(artistId)}&${params.toString()}`, {
+        const res = await fetch(`${backendApiUrl}/artistsalbums?id=${encodeURIComponent(artistId)}&${params.toString()}`, {
             credentials: 'include'
         });
         const data = await res.json();
@@ -176,7 +190,7 @@ const App: React.FC = () => {
     const fetchAlbumTracks = async (albumId: string): Promise<SimplifiedTrack[]> => {
         const cached = albumIdToTracksCache.current.get(albumId);
         if (cached) return cached;
-        const res = await fetch(`${backendApi}/albumtracks?id=${encodeURIComponent(albumId)}&limit=50`, { credentials: 'include' });
+        const res = await fetch(`${backendApiUrl}/albumtracks?id=${encodeURIComponent(albumId)}&limit=50`, { credentials: 'include' });
         const data = await res.json();
         const tracks: SimplifiedTrack[] = (data.items || []).map((t: any) => ({ id: t.id, name: t.name, albumId }));
         albumIdToTracksCache.current.set(albumId, tracks);
@@ -210,7 +224,7 @@ const App: React.FC = () => {
             const q1CorrectIndex = q1Options.indexOf(q1Answer);
 
             // 2. Top track - artist
-            const resTop = await fetch(`${backendApi}/artisttoptracks?id=${encodeURIComponent(artistB.id)}`, { credentials: 'include' });
+            const resTop = await fetch(`${backendApiUrl}/artisttoptracks?id=${encodeURIComponent(artistB.id)}`, { credentials: 'include' });
             const topData = await resTop.json();
             const topTracks = (topData.tracks || []).slice(0, 4);
             const topTrackName = topTracks[0]?.name || 'Unknown';
@@ -283,11 +297,26 @@ const App: React.FC = () => {
     };
 
     const createRoom = () => {
+        setStatusMessage('Creating room...');
+        console.log('Attempting to create room...');
+        console.log('Socket connected:', socket.connected);
+        console.log('Socket ID:', socket.id);
+        
+        // Add timeout to detect if callback never comes
+        const timeout = setTimeout(() => {
+            setStatusMessage('Failed to create room - server timeout. Please try again.');
+            console.error('Room creation timeout - server did not respond');
+        }, 10000);
+        
         socket.emit('createRoom', ({ roomCode }: { roomCode: string }) => {
+            clearTimeout(timeout);
+            console.log('Room created successfully:', roomCode);
             setRoomCode(roomCode);
             setInRoom(true);
             setIsCreator(true);
             setStatusMessage(`Room created. Share this code with your friend: ${roomCode}`);
+            
+            // Automatically set player name from database
             if (displayName.trim()) {
                 socket.emit('setPlayerName', roomCode, displayName.trim());
             }
@@ -302,11 +331,17 @@ const App: React.FC = () => {
             setStatusMessage('Please enter a room code');
             return;
         }
+        
+        setStatusMessage('Joining room...');
+        console.log('Attempting to join room:', inputCode.trim());
+        
         socket.emit('joinRoom', inputCode.trim(), ({ success, message }: { success: boolean; message?: string }) => {
+            console.log('Join room response:', { success, message });
             if (success) {
                 setRoomCode(inputCode.trim());
                 setInRoom(true);
                 setStatusMessage(`Joined room ${inputCode.trim()}. Waiting for the game to start...`);
+                // Automatically set player name from database
                 if (displayName.trim()) {
                     socket.emit('setPlayerName', inputCode.trim(), displayName.trim());
                 }
@@ -334,21 +369,46 @@ const App: React.FC = () => {
         return (
             <div style={{ padding: 20 }}>
                 <h1>Socket.io 2-Player Game</h1>
-                <button onClick={createRoom}>Create Room</button>
+                {displayName && (
+                    <p>Playing as: <strong>{displayName}</strong></p>
+                )}
+                <p>Socket Status: {socket.connected ? '✅ Connected' : '❌ Disconnected'}</p>
+                
+                <button 
+                    onClick={createRoom}
+                    style={{
+                        padding: '10px 20px',
+                        fontSize: '16px',
+                        backgroundColor: '#007bff',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '5px',
+                        cursor: 'pointer'
+                    }}
+                >
+                    Create Room
+                </button>
+                
                 <div style={{ marginTop: 20 }}>
                     <input
                         placeholder="Enter room code"
                         value={inputCode}
                         onChange={e => setInputCode(e.target.value)}
+                        style={{ padding: '8px', marginRight: '10px' }}
                     />
-                    <button onClick={joinRoom}>Join Room</button>
-                </div>
-                <div style={{ marginTop: 12 }}>
-                    <input
-                        placeholder="Your display name (Spotify)"
-                        value={displayName}
-                        onChange={e => setDisplayName(e.target.value)}
-                    />
+                    <button 
+                        onClick={joinRoom}
+                        style={{
+                            padding: '8px 16px',
+                            backgroundColor: '#28a745',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '5px',
+                            cursor: 'pointer'
+                        }}
+                    >
+                        Join Room
+                    </button>
                 </div>
                 <p>{statusMessage}</p>
             </div>
@@ -377,20 +437,64 @@ const App: React.FC = () => {
         const disabled = answered || remainingSec <= 0;
         return (
             <div style={{ padding: 20 }}>
-                <h2>{question.text}</h2>
-                <p>Score: {score}</p>
-                {deadlineTs && (
-                    <p>Time left: {remainingSec}s</p>
-                )}
+                {/* Score and Progress Header */}
+                <div style={{ 
+                    display: 'flex', 
+                    justifyContent: 'space-between', 
+                    alignItems: 'center', 
+                    marginBottom: '20px',
+                    padding: '10px 15px',
+                    backgroundColor: '#f8f9fa',
+                    borderRadius: '8px',
+                    border: '1px solid #dee2e6'
+                }}>
+                    <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
+                        <span style={{ fontSize: '18px', fontWeight: 'bold', color: '#28a745' }}>
+                            Score: {score}
+                        </span>
+                        <span style={{ fontSize: '14px', color: '#6c757d' }}>
+                            Question {currentQuestionIndex + 1} of {questions.length}
+                        </span>
+                    </div>
+                    {deadlineTs && (
+                        <span style={{ 
+                            fontSize: '16px', 
+                            fontWeight: 'bold',
+                            color: remainingSec <= 5 ? '#dc3545' : '#007bff'
+                        }}>
+                            Time: {remainingSec}s
+                        </span>
+                    )}
+                </div>
+
+                <h2 style={{ marginBottom: '20px' }}>{question.text}</h2>
+                
                 {question.imageUrl && (
-                    <div style={{ margin: '12px 0' }}>
+                    <div style={{ margin: '20px 0' }}>
                         <img src={question.imageUrl} alt="question" style={{ maxWidth: 240, borderRadius: 8 }} />
                     </div>
                 )}
+                
                 <ul style={{ listStyle: 'none', padding: 0 }}>
                     {question.options.map((option, i) => (
-                        <li key={i} style={{ marginBottom: 10 }}>
-                            <button onClick={() => answerQuestion(i)} disabled={disabled}>{option}</button>
+                        <li key={i} style={{ marginBottom: 12 }}>
+                            <button 
+                                onClick={() => answerQuestion(i)} 
+                                disabled={disabled}
+                                style={{
+                                    width: '100%',
+                                    padding: '12px 20px',
+                                    fontSize: '16px',
+                                    border: '2px solid #007bff',
+                                    borderRadius: '8px',
+                                    backgroundColor: disabled ? '#f8f9fa' : '#ffffff',
+                                    color: disabled ? '#6c757d' : '#007bff',
+                                    cursor: disabled ? 'not-allowed' : 'pointer',
+                                    transition: 'all 0.2s ease'
+                                }}
+                            >
+                                {option}
+                            </button>
                         </li>
                     ))}
                 </ul>
@@ -419,6 +523,9 @@ const App: React.FC = () => {
     return (
         <div style={{ padding: 20 }}>
             <h1>Room: {roomCode}</h1>
+            {displayName && (
+                <p>Playing as: <strong>{displayName}</strong></p>
+            )}
             <p>{statusMessage}</p>
             <p>{isCreator ? 'You created this room. Waiting for the other player...' : 'You joined the room!'}</p>
         </div>

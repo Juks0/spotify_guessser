@@ -1,1 +1,0 @@
-export const backendApiUrl = "https://192.168.0.8:8888";

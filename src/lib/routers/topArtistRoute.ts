@@ -4,8 +4,10 @@ import { createOrUpdateUser, saveTopArtists } from '../database/services.js';
 
 const router = Router();
 
+// Rest of your code remains the same...
 router.get('/topartists', async (req: Request, res: Response) => {
     const access_token = req.cookies['access_token'];
+    const refresh_token = req.cookies['refresh_token'];
     const time_range = (typeof req.query.time_range === 'string' ? req.query.time_range : undefined) || 'medium_term';
     const limit = Number(req.query.limit) || 50;
 
@@ -27,43 +29,71 @@ router.get('/topartists', async (req: Request, res: Response) => {
         });
 
         if (!response.ok) {
-            throw new Error(`Spotify API error: ${response.status}`);
+            if (response.status === 403) {
+                return res.status(403).json({
+                    error: 'Insufficient permissions. Check your Spotify app scopes include user-top-read.'
+                });
+            }
+            if (response.status === 401) {
+                return res.status(401).json({
+                    error: 'Access token expired or invalid. Please re-authenticate.'
+                });
+            }
+            throw new Error(`Spotify API error: ${response.status} ${response.statusText}`);
         }
 
         const data = await response.json();
         console.log('Spotify top artists data:', data);
 
-        // Get user info to store top artists
-        const userResponse = await fetch('https://api.spotify.com/v1/me', {
-            headers: {
-                'Authorization': 'Bearer ' + access_token,
-            }
-        });
-        
-        if (userResponse.ok) {
-            const userData = await userResponse.json();
-            const displayName = userData.display_name || userData.id;
-            const imageUrl = userData.images && userData.images[0] ? userData.images[0].url : undefined;
+        // Get user data and save to database
+        try {
+            const userResponse = await fetch('https://api.spotify.com/v1/me', {
+                headers: {
+                    'Authorization': 'Bearer ' + access_token,
+                }
+            });
             
-            // Create/update user in database
-            const dbUser = await createOrUpdateUser(userData.id, displayName, imageUrl);
-            
-            // Store top artists in database
-            if (data.items && Array.isArray(data.items)) {
-                const artistNames = data.items.map((artist: any) => artist.name);
-                const dbTimeRange = time_range === 'short_term' ? '1month' : 
-                                  time_range === 'medium_term' ? '6months' : '1year';
+            if (userResponse.ok) {
+                const userData = await userResponse.json();
+                const displayName = userData.display_name || userData.id;
+                const imageUrl = userData.images && userData.images[0] ? userData.images[0].url : undefined;
                 
-                await saveTopArtists(dbUser.id, artistNames, dbTimeRange);
-                console.log(`Saved ${artistNames.length} top artists for user ${dbUser.id} (${dbTimeRange})`);
+                try {
+                    const dbUser = await createOrUpdateUser(
+                        userData.id,           // spotifyId
+                        displayName,           // displayName  
+                        userData.email,        // email (optional)
+                        imageUrl,              // imageUrl (optional)
+                        userData.country,      // country (optional)
+                        userData.product,      // product (optional - 'free' | 'premium')
+                        refresh_token          // refreshToken (optional)
+                    );
+                    
+                    if (data.items && Array.isArray(data.items)) {
+                        const dbTimeRange = time_range === 'short_term' ? '1month' : 
+                                          time_range === 'medium_term' ? '6months' : '1year';
+                        
+                        await saveTopArtists(dbUser.id, data.items, dbTimeRange);
+                        console.log(`✅ Saved ${data.items.length} top artists for user ${dbUser.id} (${dbTimeRange})`);
+                    }
+                } catch (dbError) {
+                    console.error('❌ Database error while saving user/artists:', dbError);
+                }
+            } else {
+                console.warn('⚠️ Failed to fetch user data from Spotify:', userResponse.status);
             }
+        } catch (userError) {
+            console.error('❌ Error fetching user data:', userError);
         }
 
         res.json(data);
 
     } catch (error) {
-        console.error('Error fetching top artists:', error);
-        res.status(500).json({ error: 'Failed to fetch top artists' });
+        console.error('❌ Error fetching top artists:', error);
+        res.status(500).json({
+            error: 'Failed to fetch top artists',
+            details: error instanceof Error ? error.message : 'Unknown error'
+        });
     }
 });
 

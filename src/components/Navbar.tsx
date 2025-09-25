@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
-import { backendApiUrl } from '@/lib/urls/backendApiUrl.js';
+
+
+const backendApiUrl = import.meta.env.VITE_BACKEND_URL;
 
 const Navbar: React.FC = () => {
     const [isLoggedIn, setIsLoggedIn] = useState(false);

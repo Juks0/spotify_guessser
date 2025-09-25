@@ -1,10 +1,12 @@
 import { Router, Request, Response } from 'express';
 import querystring from 'querystring';
+import { createOrUpdateUser, saveTopTracks } from '../database/services.ts';
 
 const router = Router();
 
-router.get('/toptracks', (req: Request, res: Response) => {
+router.get('/toptracks', async (req: Request, res: Response) => {
     const access_token = req.cookies['access_token'];
+    const refresh_token = req.cookies['refresh_token'];
     const time_range = (typeof req.query.time_range === 'string' ? req.query.time_range : undefined) || 'medium_term';
     const limit = Number(req.query.limit) || 50;
 
@@ -12,26 +14,86 @@ router.get('/toptracks', (req: Request, res: Response) => {
         return res.status(401).json({ error: 'Access token not found in cookies' });
     }
 
-    const queryParams = querystring.stringify({
-        time_range,
-        limit,
-        offset: 0
-    });
-
-    fetch(`https://api.spotify.com/v1/me/top/tracks?${queryParams}`, {
-        headers: {
-            'Authorization': 'Bearer ' + access_token,
-        }
-    })
-        .then(response => response.json())
-        .then(data => {
-            console.log(data);
-            res.json(data);
-        })
-        .catch(error => {
-            console.error(error);
-            res.status(500).json({ error: 'Failed to fetch top tracks' });
+    try {
+        const queryParams = querystring.stringify({
+            time_range,
+            limit,
+            offset: 0
         });
+
+        const response = await fetch(`https://api.spotify.com/v1/me/top/tracks?${queryParams}`, {
+            headers: {
+                'Authorization': 'Bearer ' + access_token,
+            }
+        });
+
+        if (!response.ok) {
+            if (response.status === 403) {
+                return res.status(403).json({
+                    error: 'Insufficient permissions. Check your Spotify app scopes include user-top-read.'
+                });
+            }
+            if (response.status === 401) {
+                return res.status(401).json({
+                    error: 'Access token expired or invalid. Please re-authenticate.'
+                });
+            }
+            throw new Error(`Spotify API error: ${response.status} ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        console.log('Spotify top tracks data:', data);
+
+        // Get user data and save to database
+        try {
+            const userResponse = await fetch('https://api.spotify.com/v1/me', {
+                headers: {
+                    'Authorization': 'Bearer ' + access_token,
+                }
+            });
+            
+            if (userResponse.ok) {
+                const userData = await userResponse.json();
+                const displayName = userData.display_name || userData.id;
+                const imageUrl = userData.images && userData.images[0] ? userData.images[0].url : undefined;
+                
+                try {
+                    const dbUser = await createOrUpdateUser(
+                        userData.id,           // spotifyId
+                        displayName,           // displayName  
+                        userData.email,        // email (optional)
+                        imageUrl,              // imageUrl (optional)
+                        userData.country,      // country (optional)
+                        userData.product,      // product (optional - 'free' | 'premium')
+                        refresh_token          // refreshToken (optional)
+                    );
+                    
+                    if (data.items && Array.isArray(data.items)) {
+                        const dbTimeRange = time_range === 'short_term' ? '1month' : 
+                                          time_range === 'medium_term' ? '6months' : '1year';
+                        
+                        await saveTopTracks(dbUser.id, data.items, dbTimeRange);
+                        console.log(`✅ Saved ${data.items.length} top tracks for user ${dbUser.id} (${dbTimeRange})`);
+                    }
+                } catch (dbError) {
+                    console.error('❌ Database error while saving user/tracks:', dbError);
+                }
+            } else {
+                console.warn('⚠️ Failed to fetch user data from Spotify:', userResponse.status);
+            }
+        } catch (userError) {
+            console.error('❌ Error fetching user data:', userError);
+        }
+
+        res.json(data);
+
+    } catch (error) {
+        console.error('❌ Error fetching top tracks:', error);
+        res.status(500).json({
+            error: 'Failed to fetch top tracks',
+            details: error instanceof Error ? error.message : 'Unknown error'
+        });
+    }
 });
 
 export default router;

@@ -1,10 +1,13 @@
 import { Router, Request, Response } from 'express';
-import { createOrUpdateUser, getUserByUsername } from '../database/services';
+import { createOrUpdateUser, getUserByUsername } from '../database/services.ts';
 
 const router = Router();
 
+
 router.get('/me', async (req: Request, res: Response) => {
     const access_token = req.cookies['access_token'];
+    const refresh_token = req.cookies['refresh_token'];
+    
     if (!access_token) {
         return res.status(401).json({ error: 'Access token not found in cookies' });
     }
@@ -23,12 +26,21 @@ router.get('/me', async (req: Request, res: Response) => {
         const spotifyData = await response.json();
         console.log('Spotify user data:', spotifyData);
         
-        // Store/update user in database
+        // ✅ Updated to match new createOrUpdateUser signature with refresh token
         const displayName = spotifyData.display_name || spotifyData.id;
-        const imageUrl = spotifyData.images && spotifyData.images[0] ? spotifyData.images[0].url : undefined;
+        const imageUrl = spotifyData.images?.[0]?.url;
         
-        const dbUser = await createOrUpdateUser(spotifyData.id, displayName, imageUrl);
-        console.log('Database user:', dbUser);
+        const dbUser = await createOrUpdateUser(
+            spotifyData.id,           // spotifyId
+            displayName,              // displayName  
+            spotifyData.email,        // email (optional)
+            imageUrl,                 // imageUrl (optional)
+            spotifyData.country,      // country (optional)
+            spotifyData.product,      // product (optional - 'free' | 'premium')
+            refresh_token             // refreshToken (optional)
+        );
+        
+        console.log('Database user created/updated:', dbUser);
         
         // Return combined data
         res.json({
@@ -39,8 +51,19 @@ router.get('/me', async (req: Request, res: Response) => {
         
     } catch (err) {
         console.error('Error fetching user profile:', err);
-        res.status(500).json({ error: 'Failed to fetch user profile' });
+        
+        // ✅ Better error handling with details
+        if (err instanceof Error) {
+            res.status(500).json({ 
+                error: 'Failed to fetch user profile',
+                details: err.message 
+            });
+        } else {
+            res.status(500).json({ error: 'Failed to fetch user profile' });
+        }
     }
 });
+
+
 
 export default router;

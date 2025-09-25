@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import {backendApiUrl} from "@/lib/urls/backendApiUrl.js";
 import { useNavigate } from 'react-router-dom';
 
-const backendApi = backendApiUrl
+const backendApiUrl = import.meta.env.VITE_BACKEND_URL;
 
 interface Track {
     id: string;
@@ -34,7 +33,7 @@ const TopTracks = () => {
             limit: limit.toString(),
         });
 
-        fetch(`${backendApi}/toptracks?${params.toString()}`, { credentials: 'include' })
+        fetch(`${backendApiUrl}/toptracks?${params.toString()}`, { credentials: 'include' })
             .then(res => res.json())
             .then(data => {
                 console.log('Received ', data);

@@ -1,6 +1,8 @@
 import React, { Component } from "react";
-import { backendApiUrl } from "@/lib/urls/backendApiUrl.ts";
 import { NavigateFunction } from "react-router-dom";
+
+
+const backendApiUrl = import.meta.env.VITE_BACKEND_URL;
 
 interface ArtistImage {
     url: string;

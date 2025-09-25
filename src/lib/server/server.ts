@@ -4,12 +4,12 @@ import fs from 'fs';
 import cors from 'cors';
 import { Server, Socket } from 'socket.io';
 import { v4 as uuidv4 } from 'uuid';
-import { forntendUrl } from "@/lib/urls/forntendUrl.js";
 import cookieParser from "cookie-parser";
-import { saveGameResult } from '../database/services.js';
 
 const app = express();
 const __dirname = import.meta.dirname;
+
+const forntendUrl = process.env.FRONTEND_URL;
 
 app.use(express.static(__dirname + '/public'))
     .use(cors({
@@ -180,12 +180,7 @@ async function startNextRound(roomCode: string) {
             const player2Score = state.scores[players[1]];
             
             if (player1Id && player2Id) {
-                try {
-                    await saveGameResult(roomCode, player1Id, player2Id, player1Score, player2Score);
-                    console.log(`Game result saved for room ${roomCode}`);
-                } catch (error) {
-                    console.error('Failed to save game result:', error);
-                }
+                console.log(`Game completed for room ${roomCode} - Player 1: ${player1Score}, Player 2: ${player2Score}`);
             }
         }
         
