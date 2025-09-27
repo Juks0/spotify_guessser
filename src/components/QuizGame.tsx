@@ -5,7 +5,6 @@ import {SpotifyArtist} from "@/components/models/SpotifyData.js";
 
 const backendApiUrl = import.meta.env.VITE_BACKEND_URL;
 const serverBackendApiUrl = import.meta.env.SERVER_BACKEND_URL;
-
 interface Question {
     id: number;
     text: string;
@@ -13,43 +12,32 @@ interface Question {
     answer: number;
     imageUrl?: string;
 }
-
 const socket: Socket = io(serverBackendApiUrl, {
     secure: true,
 });
-
 type SimplifiedAlbum = { id: string; name: string; total_tracks: number; image?: string };
 type SimplifiedTrack = { id: string; name: string; albumId: string };
-
 const fetchTopArtists = async (): Promise<Artist[]> => {
     const params = new URLSearchParams({
         time_range: "medium_term",
         limit: "50",
     });
-
     const response = await fetch(`${backendApiUrl}/topartists?${params.toString()}`, {
         credentials: 'include'
     });
     const data = await response.json();
-
     if (!data.items || !Array.isArray(data.items)) {
         throw new Error("Invalid artists data");
     }
-
     return data.items.map((artistData: SpotifyArtist) => {
         const id = artistData.id;
         const name = artistData.name;
         const genres = artistData.genres || [];
         const popularity = artistData.popularity || 0;
         const image = artistData.images && artistData.images.length > 0 ? artistData.images[0].url : '';
-
         return new Artist(id, name, genres, popularity, image);
     });
-
 };
-
-
-
 const App: React.FC = () => {
     const [topArtists, setTopArtists] = useState<Artist[]>([]);
     const artistIdToAlbumsCache = useRef<Map<string, SimplifiedAlbum[]>>(new Map());
@@ -69,27 +57,19 @@ const App: React.FC = () => {
     const [inRoom, setInRoom] = useState(false);
     const [statusMessage, setStatusMessage] = useState('');
     const [isCreator, setIsCreator] = useState(false);
-
     const [showQuiz, setShowQuiz] = useState(false);
     const [questions, setQuestions] = useState<Question[]>([]);
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-
     useEffect(() => {
         const onTick = () => setNowTs(Date.now());
         let interval: number | undefined;
-
         socket.on('connect', () => {
-            console.log('Socket connected with ID:', socket.id);
             setMyId(socket.id || '');
         });
-
         socket.on('disconnect', () => {
-            console.log('Socket disconnected');
             setStatusMessage('Connection lost. Please refresh the page.');
         });
-
         socket.on('connect_error', (error) => {
-            console.error('Socket connection error:', error);
             setStatusMessage('Connection failed. Please check your internet connection.');
         });
         socket.on('startGame', ({ roomCode }) => {
@@ -102,7 +82,6 @@ const App: React.FC = () => {
                 setPreGameCountdown(c);
                 if (c <= 0) {
                     window.clearInterval(countdownInterval);
-                    // Prepare questions and send to server (server accepts only from host)
                     prepareQuestions().then(built => {
                         if (built.length > 0) {
                             socket.emit('hostQuestions', roomCode, built);
@@ -113,12 +92,10 @@ const App: React.FC = () => {
                 }
             }, 1000);
         });
-
         socket.on('sendQuestions', (receivedQuestions: Question[]) => {
             setQuestions(receivedQuestions);
             setCurrentQuestionIndex(0);
         });
-
         socket.on('questionStart', ({ index, deadline }: { index: number; deadline: number }) => {
             setCurrentQuestionIndex(index);
             answerStartTimeRef.current = performance.now();
@@ -127,26 +104,20 @@ const App: React.FC = () => {
             if (interval) window.clearInterval(interval);
             interval = window.setInterval(onTick, 10000);
         });
-
         socket.on('questionEnd', ({ index, correctIndex, scores }: { index: number; correctIndex: number; scores: Record<string, number> }) => {
             setScore((myId && scores[myId]) ? scores[myId] : 0);
             if (interval) window.clearInterval(interval);
             setDeadlineTs(null);
         });
-
         socket.on('gameOver', ({ leaderboard }: { leaderboard: { playerId: string; name?: string; score: number }[] }) => {
             setStatusMessage('Game over');
             setShowQuiz(false);
-            // Optionally show leaderboard in UI
             const sorted = [...leaderboard].sort((a, b) => b.score - a.score);
             setLeaderboard(sorted);
         });
-
         fetchTopArtists().
         then(setTopArtists).
         catch(console.error);
-
-        // Get user's database ID and username
         fetch(`${backendApiUrl}/me`, { credentials: 'include' })
             .then(res => res.json())
             .then(data => {
@@ -158,7 +129,6 @@ const App: React.FC = () => {
                 }
             })
             .catch(console.error);
-
         return () => {
             socket.off('startGame');
             socket.off('sendQuestions');
@@ -171,9 +141,7 @@ const App: React.FC = () => {
             if (interval) window.clearInterval(interval);
         };
     }, []);
-
     const pickRandom = <T,>(items: T[]): T => items[Math.floor(Math.random() * items.length)];
-
     const fetchArtistAlbums = async (artistId: string): Promise<SimplifiedAlbum[]> => {
         const cached = artistIdToAlbumsCache.current.get(artistId);
         if (cached) return cached;
@@ -186,7 +154,6 @@ const App: React.FC = () => {
         artistIdToAlbumsCache.current.set(artistId, albums);
         return albums;
     };
-
     const fetchAlbumTracks = async (albumId: string): Promise<SimplifiedTrack[]> => {
         const cached = albumIdToTracksCache.current.get(albumId);
         if (cached) return cached;
@@ -196,7 +163,6 @@ const App: React.FC = () => {
         albumIdToTracksCache.current.set(albumId, tracks);
         return tracks;
     };
-
     const prepareQuestions = async (): Promise<Question[]> => {
         try {
             let artists = topArtists;
@@ -204,16 +170,12 @@ const App: React.FC = () => {
                 artists = await fetchTopArtists();
                 setTopArtists(artists);
             }
-
             const artistA = pickRandom(artists);
             const artistB = pickRandom(artists);
             const artistC = pickRandom(artists);
-
             const [albumsA] = await Promise.all([
                 fetchArtistAlbums(artistA.id)
             ]);
-
-            // 1. How many albums does this artist have?
             const q1Answer = albumsA.length;
             const q1Options = Array.from(new Set([
                 q1Answer,
@@ -222,16 +184,12 @@ const App: React.FC = () => {
                 q1Answer + 2,
             ])).slice(0, 4).sort(() => Math.random() - 0.5);
             const q1CorrectIndex = q1Options.indexOf(q1Answer);
-
-            // 2. Top track - artist
             const resTop = await fetch(`${backendApiUrl}/artisttoptracks?id=${encodeURIComponent(artistB.id)}`, { credentials: 'include' });
             const topData = await resTop.json();
             const topTracks = (topData.tracks || []).slice(0, 4);
             const topTrackName = topTracks[0]?.name || 'Unknown';
             const topTrackOptions = topTracks.map((t: any) => t.name);
             const q2CorrectIndex = 0;
-
-            // 3. Random track from random album for artistC
             const albumsC = await fetchArtistAlbums(artistC.id);
             const randomAlbumC = albumsC.length ? pickRandom(albumsC) : null;
             const tracksC = randomAlbumC ? await fetchAlbumTracks(randomAlbumC.id) : [];
@@ -245,8 +203,6 @@ const App: React.FC = () => {
             }
             const q3Options = albumOptions.slice(0, 4).sort(() => Math.random() - 0.5);
             const q3CorrectIndex = q3Options.indexOf(randomAlbumC?.name || '');
-
-            // 4. Random album and count tracks for artistA again (or any artist)
             const randomAlbumA = albumsA.length ? pickRandom(albumsA) : null;
             const tracksA = randomAlbumA ? await fetchAlbumTracks(randomAlbumA.id) : [];
             const trackCount = tracksA.length || (randomAlbumA?.total_tracks ?? 0);
@@ -257,7 +213,6 @@ const App: React.FC = () => {
                 trackCount + 2,
             ])).slice(0, 4).sort(() => Math.random() - 0.5);
             const q4CorrectIndex = q4Options.indexOf(trackCount);
-
             const built: Question[] = [
                 {
                     id: 1,
@@ -288,26 +243,21 @@ const App: React.FC = () => {
                     imageUrl: randomAlbumA?.image
                 }
             ];
-
             return built;
         } catch (e) {
             console.error(e);
             return [];
         }
     };
-
     const createRoom = () => {
         setStatusMessage('Creating room...');
         console.log('Attempting to create room...');
         console.log('Socket connected:', socket.connected);
         console.log('Socket ID:', socket.id);
-        
-        // Add timeout to detect if callback never comes
         const timeout = setTimeout(() => {
             setStatusMessage('Failed to create room - server timeout. Please try again.');
             console.error('Room creation timeout - server did not respond');
         }, 10000);
-        
         socket.emit('createRoom', ({ roomCode }: { roomCode: string }) => {
             clearTimeout(timeout);
             console.log('Room created successfully:', roomCode);
@@ -315,8 +265,6 @@ const App: React.FC = () => {
             setInRoom(true);
             setIsCreator(true);
             setStatusMessage(`Room created. Share this code with your friend: ${roomCode}`);
-            
-            // Automatically set player name from database
             if (displayName.trim()) {
                 socket.emit('setPlayerName', roomCode, displayName.trim());
             }
@@ -325,23 +273,19 @@ const App: React.FC = () => {
             }
         });
     };
-
     const joinRoom = () => {
         if (inputCode.trim() === '') {
             setStatusMessage('Please enter a room code');
             return;
         }
-        
         setStatusMessage('Joining room...');
         console.log('Attempting to join room:', inputCode.trim());
-        
         socket.emit('joinRoom', inputCode.trim(), ({ success, message }: { success: boolean; message?: string }) => {
             console.log('Join room response:', { success, message });
             if (success) {
                 setRoomCode(inputCode.trim());
                 setInRoom(true);
                 setStatusMessage(`Joined room ${inputCode.trim()}. Waiting for the game to start...`);
-                // Automatically set player name from database
                 if (displayName.trim()) {
                     socket.emit('setPlayerName', inputCode.trim(), displayName.trim());
                 }
@@ -353,7 +297,6 @@ const App: React.FC = () => {
             }
         });
     };
-
     const answerQuestion = (selectedIndex: number) => {
         const current = questions[currentQuestionIndex];
         const now = performance.now();
@@ -363,9 +306,7 @@ const App: React.FC = () => {
         setAnswered(true);
         socket.emit('submitAnswer', roomCode, { questionIndex: currentQuestionIndex, selectedIndex, answerTimeMs: elapsedMs });
     };
-
     if (!inRoom) {
-        // Show room creation/join UI
         return (
             <div style={{ padding: 20 }}>
                 <h1>Socket.io 2-Player Game</h1>
@@ -373,7 +314,6 @@ const App: React.FC = () => {
                     <p>Playing as: <strong>{displayName}</strong></p>
                 )}
                 <p>Socket Status: {socket.connected ? '✅ Connected' : '❌ Disconnected'}</p>
-                
                 <button 
                     onClick={createRoom}
                     style={{
@@ -388,7 +328,6 @@ const App: React.FC = () => {
                 >
                     Create Room
                 </button>
-                
                 <div style={{ marginTop: 20 }}>
                     <input
                         placeholder="Enter room code"
@@ -414,7 +353,6 @@ const App: React.FC = () => {
             </div>
         );
     }
-
     if (!showQuiz && preGameCountdown > 0) {
         return (
             <div style={{ padding: 20 }}>
@@ -422,9 +360,7 @@ const App: React.FC = () => {
             </div>
         );
     }
-
     if (showQuiz && questions.length > 0) {
-        // Show quiz questions UI
         const question = questions[currentQuestionIndex];
         if (!question) {
             return (
@@ -437,7 +373,7 @@ const App: React.FC = () => {
         const disabled = answered || remainingSec <= 0;
         return (
             <div style={{ padding: 20 }}>
-                {/* Score and Progress Header */}
+                {}
                 <div style={{ 
                     display: 'flex', 
                     justifyContent: 'space-between', 
@@ -466,15 +402,12 @@ const App: React.FC = () => {
                         </span>
                     )}
                 </div>
-
                 <h2 style={{ marginBottom: '20px' }}>{question.text}</h2>
-                
                 {question.imageUrl && (
                     <div style={{ margin: '20px 0' }}>
                         <img src={question.imageUrl} alt="question" style={{ maxWidth: 240, borderRadius: 8 }} />
                     </div>
                 )}
-                
                 <ul style={{ listStyle: 'none', padding: 0 }}>
                     {question.options.map((option, i) => (
                         <li key={i} style={{ marginBottom: 12 }}>
@@ -501,8 +434,6 @@ const App: React.FC = () => {
             </div>
         );
     }
-
-    // Show leaderboard when game over
     if (inRoom && leaderboard) {
         return (
             <div style={{ padding: 20 }}>
@@ -518,8 +449,6 @@ const App: React.FC = () => {
             </div>
         );
     }
-
-    // Show waiting screen after room created/joined before quiz starts
     return (
         <div style={{ padding: 20 }}>
             <h1>Room: {roomCode}</h1>
@@ -531,5 +460,4 @@ const App: React.FC = () => {
         </div>
     );
 };
-
 export default App;

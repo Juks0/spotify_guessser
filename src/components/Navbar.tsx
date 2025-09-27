@@ -1,93 +1,101 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { NavLink } from 'react-router-dom';
-
-
+import { useAuth } from '../contexts/AuthContext.tsx';
 const backendApiUrl = import.meta.env.VITE_BACKEND_URL;
-
 const Navbar: React.FC = () => {
-    const [isLoggedIn, setIsLoggedIn] = useState(false);
-
-    const fetchAuthStatus = async () => {
-        try {
-            const res = await fetch(`${backendApiUrl}/me`, {
-                credentials: 'include',
-            });
-            if (res.ok) {
-                const data = await res.json();
-                setIsLoggedIn(Boolean(data?.authenticated || data?.id));
-            } else {
-                setIsLoggedIn(false);
-            }
-        } catch {
-            setIsLoggedIn(false);
-        }
-    };
-
-    useEffect(() => {
-        fetchAuthStatus();
-        const interval = setInterval(fetchAuthStatus, 300000); // <= change it to 3000 ms later
-        return () => clearInterval(interval);
-    }, []);
-
+    const { isAuthenticated, isLoading, logout } = useAuth();
     const handleLogout = async () => {
-        await fetch(`${backendApiUrl}/logout`, {
-            method: 'POST',
-            credentials: 'include',
-        });
-        setIsLoggedIn(false);
-        window.location.reload();
+        await logout();
     };
-
     const handleLogin = () => {
         window.location.href = `${backendApiUrl}/login`;
     };
-
+    const handleNavClick = (e: React.MouseEvent) => {
+        if (!isAuthenticated) {
+            e.preventDefault();
+            alert('Please log in to access this feature.');
+        }
+    };
+    if (isLoading) {
+        return (
+            <nav style={{ padding: '1rem', background: '#282c34', display: 'flex', alignItems: 'center' }}>
+                <div style={{ color: 'white' }}>Loading...</div>
+            </nav>
+        );
+    }
     return (
         <nav style={{ padding: '1rem', background: '#282c34', display: 'flex', alignItems: 'center' }}>
             <NavLink
                 to="/me"
+                onClick={handleNavClick}
                 style={({ isActive }) => ({
                     marginRight: '1rem',
-                    color: isActive ? 'yellow' : 'white',
+                    color: isActive ? 'yellow' : (isAuthenticated ? 'white' : '#666'),
                     textDecoration: 'none',
-                    fontWeight: isActive ? 'bold' : 'normal'
+                    fontWeight: isActive ? 'bold' : 'normal',
+                    cursor: isAuthenticated ? 'pointer' : 'not-allowed',
+                    opacity: isAuthenticated ? 1 : 0.5
                 })}
             >
                 Me
             </NavLink>
             <NavLink
                 to="/top-artists"
+                onClick={handleNavClick}
                 style={({ isActive }) => ({
                     marginRight: '1rem',
-                    color: isActive ? 'yellow' : 'white',
+                    color: isActive ? 'yellow' : (isAuthenticated ? 'white' : '#666'),
                     textDecoration: 'none',
-                    fontWeight: isActive ? 'bold' : 'normal'
+                    fontWeight: isActive ? 'bold' : 'normal',
+                    cursor: isAuthenticated ? 'pointer' : 'not-allowed',
+                    opacity: isAuthenticated ? 1 : 0.5
                 })}
             >
                 Top Artists
             </NavLink>
             <NavLink
                 to="/top-tracks"
+                onClick={handleNavClick}
                 style={({ isActive }) => ({
-                    color: isActive ? 'yellow' : 'white',
+                    marginRight: '1rem',
+                    color: isActive ? 'yellow' : (isAuthenticated ? 'white' : '#666'),
                     textDecoration: 'none',
-                    fontWeight: isActive ? 'bold' : 'normal'
+                    fontWeight: isActive ? 'bold' : 'normal',
+                    cursor: isAuthenticated ? 'pointer' : 'not-allowed',
+                    opacity: isAuthenticated ? 1 : 0.5
                 })}
             >
                 Top Tracks
             </NavLink>
             <NavLink
                 to="/quiz-game"
+                onClick={handleNavClick}
                 style={({ isActive }) => ({
-                    color: isActive ? 'yellow' : 'white',
+                    marginRight: '1rem',
+                    color: isActive ? 'yellow' : (isAuthenticated ? 'white' : '#666'),
                     textDecoration: 'none',
-                    fontWeight: isActive ? 'bold' : 'normal'
+                    fontWeight: isActive ? 'bold' : 'normal',
+                    cursor: isAuthenticated ? 'pointer' : 'not-allowed',
+                    opacity: isAuthenticated ? 1 : 0.5
                 })}
             >
                 Quiz Game
             </NavLink>
+            <NavLink
+                to="/friends"
+                onClick={handleNavClick}
+                style={({ isActive }) => ({
+                    color: isActive ? 'yellow' : (isAuthenticated ? 'white' : '#666'),
+                    textDecoration: 'none',
+                    fontWeight: isActive ? 'bold' : 'normal',
+                    cursor: isAuthenticated ? 'pointer' : 'not-allowed',
+                    opacity: isAuthenticated ? 1 : 0.5
+                })}
+            >
+                Friends
+            </NavLink>
             <div style={{ marginLeft: 'auto' }}>
-                {isLoggedIn ? (
+                {isAuthenticated ? (
                     <button
                         onClick={handleLogout}
                         style={{
@@ -115,12 +123,11 @@ const Navbar: React.FC = () => {
                             fontWeight: 'bold',
                         }}
                     >
-                        Zaloguj się przez Spotify
+                        Login with Spotify
                     </button>
                 )}
             </div>
         </nav>
     );
 };
-
 export default Navbar;

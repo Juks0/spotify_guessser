@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import {useNavigate} from "react-router-dom";
-
 const backendApiUrl = import.meta.env.VITE_BACKEND_URL;
-
 interface Artist {
     id: string;
     name: string;
@@ -10,28 +8,23 @@ interface Artist {
     genres: string[];
     popularity: number;
 }
-
 const TopArtists = () => {
     const [artists, setArtists] = useState<Artist[]>([]);
     const [timeRange, setTimeRange] = useState('medium_term');
     const [limit, setLimit] = useState(20);
     const navigate = useNavigate();
-
     const timeRangeOptions = [
         { label: '1 month', value: 'short_term' },
         { label: '6 months', value: 'medium_term' },
         { label: '1 year', value: 'long_term' },
     ];
-
     const limitOptions = [10, 20, 50];
-
     useEffect(() => {
         console.log('Fetching top artists data from backend...');
         const params = new URLSearchParams({
             time_range: timeRange,
             limit: limit.toString(),
         });
-
         fetch(`${backendApiUrl}/topartists?${params.toString()}`, { credentials: 'include' })
             .then(res => res.json())
             .then(data => {
@@ -40,11 +33,9 @@ const TopArtists = () => {
             })
             .catch(console.error);
     }, [timeRange, limit]);
-
     return (
         <div>
             <h1>Top Artists</h1>
-
             <div style={{ marginBottom: 20 }}>
                 <label>
                     Time range:{' '}
@@ -54,7 +45,6 @@ const TopArtists = () => {
                         ))}
                     </select>
                 </label>
-
                 <label style={{ marginLeft: 20 }}>
                     Limit:{' '}
                     <select value={limit} onChange={e => setLimit(Number(e.target.value))}>
@@ -64,7 +54,6 @@ const TopArtists = () => {
                     </select>
                 </label>
             </div>
-
             {artists.length > 0 ? (
                 <ul>
                     {artists.map(artist => (
@@ -75,7 +64,6 @@ const TopArtists = () => {
                             >
                                 {artist.name}
                             </h2>
-
                             {artist.images && artist.images.length > 0 && (
                                 <img src={artist.images[0].url} alt={artist.name} width="200" />
                             )}
@@ -88,5 +76,4 @@ const TopArtists = () => {
         </div>
     );
 };
-
 export default TopArtists;

@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-
 const backendApiUrl = import.meta.env.VITE_BACKEND_URL;
-
 interface Track {
     id: string;
     name: string;
@@ -12,7 +10,6 @@ interface Track {
     artists: { name: string }[];
     popularity: number;
 }
-
 const TopTracks = () => {
     const [tracks, setTracks] = useState<Track[]>([]);
     const [timeRange, setTimeRange] = useState('medium_term');
@@ -23,16 +20,13 @@ const TopTracks = () => {
         { label: '6 months', value: 'medium_term' },
         { label: '1 year', value: 'long_term' },
     ];
-
     const limitOptions = [10, 20, 50];
-
     useEffect(() => {
         console.log('Fetching top tracks data from backend...');
         const params = new URLSearchParams({
             time_range: timeRange,
             limit: limit.toString(),
         });
-
         fetch(`${backendApiUrl}/toptracks?${params.toString()}`, { credentials: 'include' })
             .then(res => res.json())
             .then(data => {
@@ -41,11 +35,9 @@ const TopTracks = () => {
             })
             .catch(console.error);
     }, [timeRange, limit]);
-
     return (
         <div>
             <h1>Top Tracks</h1>
-
             <div style={{ marginBottom: 20 }}>
                 <label>
                     Time range:{' '}
@@ -55,7 +47,6 @@ const TopTracks = () => {
                         ))}
                     </select>
                 </label>
-
                 <label style={{ marginLeft: 20 }}>
                     Limit:{' '}
                     <select value={limit} onChange={e => setLimit(Number(e.target.value))}>
@@ -65,7 +56,6 @@ const TopTracks = () => {
                     </select>
                 </label>
             </div>
-
             {tracks.length > 0 ? (
                 <ul>
                     {tracks.map(track => (
@@ -92,5 +82,4 @@ const TopTracks = () => {
         </div>
     );
 };
-
 export default TopTracks;

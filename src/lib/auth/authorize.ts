@@ -14,24 +14,17 @@ import trackRoute from "@/lib/routers/topTrackRoute.ts";
 import trackDetailRoute from "@/lib/routers/trackDetailRoute.ts";
 import artistDetailsRoute from "@/lib/routers/artistDetailsRoute.ts";
 import quizQuestions from "@/lib/routers/quizQuestions.ts";
-// DODANE IMPORTY
 import playbackRoute from "@/lib/routers/playbackRoute.ts";
 import friendsRoute from "@/lib/routers/friendsRoute.ts";
 import tokenRoute from "@/lib/routers/tokenRoute.ts";
-
 const client_id = '560440ae985b45a8b13e61974617bd05';
 const client_secret = '7f262b78be8148c194110fad34f96616';
 const backendApiUrl = process.env.VITE_BACKEND_URL;
 const frontend_uri = process.env.VITE_FRONTEND_URL;
-
 const redirect_uri = backendApiUrl+'/callback';
-
 const stateKey = 'spotify_auth_state';
-
-
 const generateRandomString = (length: number): string =>
     crypto.randomBytes(60).toString('hex').slice(0, length);
-
 const app = express();
 const __dirname = import.meta.dirname;
 app.use(express.static(__dirname + '/public'))
@@ -40,8 +33,7 @@ app.use(express.static(__dirname + '/public'))
         credentials: true
     }))
     .use(cookieParser())
-    .use(express.json()); // DODANE - potrzebne dla POST requestów
-
+    .use(express.json()); 
 app.get('/login', (_req: Request, res: Response) => {
     const state = generateRandomString(16);
     res.cookie(stateKey, state);
@@ -51,20 +43,17 @@ app.get('/login', (_req: Request, res: Response) => {
     console.log('Frontend URL:', frontend_uri);
     console.log('Redirect URI:', redirect_uri);
     console.log('Full redirect URL will be:', redirect_uri);
-
-    // ROZSZERZONE SCOPES
     const scope = [
         'user-read-private',
         'user-read-email', 
         'user-top-read',
         'user-read-recently-played',
         'user-read-playback-position',
-        'user-read-playback-state',      // Playback
-        'user-modify-playback-state',    // Playback controls
-        'user-read-currently-playing'    // Currently playing
+        'user-read-playback-state',      
+        'user-modify-playback-state',    
+        'user-read-currently-playing'    
     ].join(' ');
-
-    res.redirect('https://accounts.spotify.com/authorize?' +
+    res.redirect('https:
         querystring.stringify({
             response_type: 'code',
             client_id,
@@ -73,20 +62,17 @@ app.get('/login', (_req: Request, res: Response) => {
             state,
         }));
 });
-
 app.get('/callback', (req: Request, res: Response) => {
     const code = req.query.code as string | undefined;
     const state = req.query.state as string | undefined;
     const storedState = req.cookies ? req.cookies[stateKey] : undefined;
-
     if (!state || state !== storedState) {
         res.redirect(frontend_uri + '/#' +
             querystring.stringify({ error: 'state_mismatch' }));
     } else {
         res.clearCookie(stateKey);
-
         const authOptions = {
-            url: 'https://accounts.spotify.com/api/token',
+            url: 'https:
             form: {
                 code,
                 redirect_uri,
@@ -100,12 +86,10 @@ app.get('/callback', (req: Request, res: Response) => {
             },
             json: true,
         };
-
         request.post(authOptions, (error, response, body) => {
             if (!error && response.statusCode === 200) {
                 const access_token = body.access_token;
                 const refresh_token = body.refresh_token;
-                
                 res.cookie('access_token', access_token, { 
                     httpOnly: true, 
                     secure: process.env.NODE_ENV === 'production',
@@ -116,7 +100,6 @@ app.get('/callback', (req: Request, res: Response) => {
                     secure: process.env.NODE_ENV === 'production',
                     sameSite: 'lax'
                 });
-                
                 console.log('✅ Tokens set successfully');
                 res.redirect(frontend_uri+'/me')
             } else {
@@ -127,16 +110,13 @@ app.get('/callback', (req: Request, res: Response) => {
         });
     }
 });
-
 app.get('/refresh_token', (req: Request, res: Response) => {
     const incomingRefreshToken = (req.query.refresh_token as string | undefined) || req.cookies['refresh_token'];
-
     if (!incomingRefreshToken) {
         return res.status(400).json({ error: 'Refresh token not provided' });
     }
-
     const authOptions = {
-        url: 'https://accounts.spotify.com/api/token',
+        url: 'https:
         headers: {
             'content-type': 'application/x-www-form-urlencoded',
             Authorization: 'Basic ' + Buffer.from(
@@ -149,19 +129,15 @@ app.get('/refresh_token', (req: Request, res: Response) => {
         },
         json: true,
     };
-
     request.post(authOptions, (error, response, body) => {
         if (error) {
             return res.status(500).json({ error: 'Failed to refresh token' });
         }
-
         if (response.statusCode !== 200) {
             return res.status(response.statusCode).json({ error: 'Invalid refresh request' });
         }
-
         const newAccessToken = body.access_token as string | undefined;
         const newRefreshToken = body.refresh_token as string | undefined;
-
         if (newAccessToken) {
             res.cookie('access_token', newAccessToken, { 
                 httpOnly: true, 
@@ -176,19 +152,15 @@ app.get('/refresh_token', (req: Request, res: Response) => {
                 sameSite: 'lax'
             });
         }
-
         return res.status(200).json({ success: true });
     });
 });
-
 app.post('/logout', (_req: Request, res: Response) => {
     console.log("🚪 Hit /logout POST");
     res.clearCookie('access_token', { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: "lax" });
     res.clearCookie('refresh_token', { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: "lax" });
-
     res.status(200).json({ success: true });
 });
-
 app.use('/', userRoute);
 app.use('/', artistRoute);
 app.use('/', trackRoute);
@@ -198,14 +170,11 @@ app.use('/', quizQuestions);
 app.use('/spotify', playbackRoute);  
 app.use('/', friendsRoute);
 app.use('/token', tokenRoute);
-
 const httpsOptions = {
     key: fs.readFileSync('private.key'),
     cert: fs.readFileSync('certificate.crt'),
 };
-
 const desiredPort = Number(process.env.AUTH_PORT) || 8888;
-
 function startHttpsServer(port: number) {
     const server = https.createServer(httpsOptions, app);
     server.on('error', (err: any) => {
@@ -221,5 +190,4 @@ function startHttpsServer(port: number) {
         console.log(`🎵 Playback routes available at /spotify/*`);
     });
 }
-
 startHttpsServer(desiredPort);

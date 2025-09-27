@@ -1,18 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
-
-
 const backendApiUrl = import.meta.env.VITE_BACKEND_URL;
-
-
 interface Friend {
     id: string;
     username: string;
     image?: string;
     last_login?: Date;
 }
-
-// POPRAWIONY interface - uczynić pola wymaganymi z domyślnymi wartościami
 interface UserProfile {
     id: string;
     username: string;
@@ -34,7 +28,6 @@ interface UserProfile {
         mostPlayedArtist?: string;
     };
 }
-
 const Friends = () => {
     const [friends, setFriends] = useState<Friend[]>([]);
     const [friendUsername, setFriendUsername] = useState('');
@@ -43,18 +36,14 @@ const Friends = () => {
     const [selectedUser, setSelectedUser] = useState<UserProfile | null>(null);
     const [loadingProfile, setLoadingProfile] = useState(false);
     const [selectedTimeRange, setSelectedTimeRange] = useState<'1month' | '6months' | '1year'>('1month');
-
     const { userId } = useParams();
     const navigate = useNavigate();
-
     useEffect(() => {
         loadFriends();
-        
         if (userId) {
             loadUserProfile(userId);
         }
     }, [userId]);
-
     const loadFriends = async () => {
         try {
             const response = await fetch(backendApiUrl + '/friends', { 
@@ -68,22 +57,16 @@ const Friends = () => {
             console.error('Error loading friends:', error);
         }
     };
-
-    // POPRAWIONA funkcja - z domyślnymi wartościami
     const loadUserProfile = async (targetUserId: string) => {
         setLoadingProfile(true);
         try {
             const response = await fetch(backendApiUrl + `/users/${targetUserId}/full-profile`, {
                 credentials: 'include'
             });
-            
             if (!response.ok) {
                 throw new Error('User not found');
             }
-            
             const data = await response.json();
-            
-            // Zapewnij domyślne wartości dla wymaganych pól
             const profile: UserProfile = {
                 id: data.id,
                 username: data.username,
@@ -101,9 +84,7 @@ const Friends = () => {
                 },
                 musicStats: data.musicStats
             };
-            
             setSelectedUser(profile);
-            
         } catch (error) {
             console.error('Error loading user profile:', error);
             setMessage('Failed to load user profile');
@@ -111,22 +92,16 @@ const Friends = () => {
             setLoadingProfile(false);
         }
     };
-
-    // POPRAWIONA funkcja z domyślnymi wartościami
     const loadUserProfileFast = async (targetUserId: string, timeRange: '1month' | '6months' | '1year' = '1month') => {
         setLoadingProfile(true);
         try {
             const response = await fetch(backendApiUrl + `/users/${targetUserId}/music-summary?timeRange=${timeRange}`, {
                 credentials: 'include'
             });
-            
             if (!response.ok) {
                 throw new Error('User not found');
             }
-            
             const data = await response.json();
-            
-            // Utwórz profile z domyślnymi wartościami
             const profile: UserProfile = {
                 id: data.user.id,
                 username: data.user.username,
@@ -143,9 +118,7 @@ const Friends = () => {
                     '1year': timeRange === '1year' ? (data.topTracks || []) : []
                 }
             };
-            
             setSelectedUser(profile);
-            
         } catch (error) {
             console.error('Error loading user profile:', error);
             setMessage('Failed to load user profile');
@@ -153,16 +126,13 @@ const Friends = () => {
             setLoadingProfile(false);
         }
     };
-
     const addFriend = async () => {
         if (!friendUsername.trim()) {
             setMessage('Please enter a username');
             return;
         }
-
         setLoading(true);
         setMessage('');
-
         try {
             const response = await fetch(backendApiUrl + '/friends', {
                 method: 'POST',
@@ -172,9 +142,7 @@ const Friends = () => {
                 credentials: 'include',
                 body: JSON.stringify({ username: friendUsername.trim() })
             });
-
             const result = await response.json();
-
             if (response.ok) {
                 setMessage('Friend added successfully!');
                 setFriendUsername('');
@@ -189,22 +157,18 @@ const Friends = () => {
             setLoading(false);
         }
     };
-
     const removeFriend = async (friendId: string, friendUsername: string) => {
         if (!confirm(`Are you sure you want to remove ${friendUsername} from your friends?`)) {
             return;
         }
-
         try {
             const response = await fetch(backendApiUrl + `/friends/${friendId}`, {
                 method: 'DELETE',
                 credentials: 'include'
             });
-
             if (response.ok) {
                 setMessage('Friend removed successfully');
                 loadFriends();
-                // If we're viewing this friend's profile, close it
                 if (selectedUser?.id === friendId) {
                     closeUserProfile();
                 }
@@ -216,41 +180,30 @@ const Friends = () => {
             console.error('Error removing friend:', error);
         }
     };
-
     const handleKeyPress = (e: React.KeyboardEvent) => {
         if (e.key === 'Enter') {
             addFriend();
         }
     };
-
     const openUserProfile = (friendId: string) => {
         navigate(`/friends/${friendId}`);
     };
-
     const closeUserProfile = () => {
         setSelectedUser(null);
         navigate('/friends');
     };
-
-    // POPRAWIONA funkcja handleTimeRangeChange - z prawidłowymi typami
     const handleTimeRangeChange = async (newTimeRange: '1month' | '6months' | '1year') => {
         setSelectedTimeRange(newTimeRange);
-        
-        // Sprawdź czy dane dla tego okresu nie są załadowane
         if (selectedUser && selectedUser.topArtists[newTimeRange].length === 0) {
             try {
                 const response = await fetch(
                     backendApiUrl + `/users/${selectedUser.id}/music-summary?timeRange=${newTimeRange}`, 
                     { credentials: 'include' }
                 );
-                
                 if (response.ok) {
                     const data = await response.json();
-                    
-                    // POPRAWIONE setState - zachowaj wszystkie właściwości
                     setSelectedUser(prev => {
                         if (!prev) return null;
-                        
                         return {
                             ...prev,
                             topArtists: {
@@ -269,10 +222,9 @@ const Friends = () => {
             }
         }
     };
-
     return (
         <div style={{ padding: '20px', maxWidth: '1200px', margin: '0 auto' }}>
-            {/* Navigation */}
+            {}
             <div style={{ marginBottom: '20px' }}>
                 <Link 
                     to="/me" 
@@ -285,9 +237,8 @@ const Friends = () => {
                     ← Back to Profile
                 </Link>
             </div>
-
             <div style={{ display: 'flex', gap: '20px' }}>
-                {/* Friends List Panel */}
+                {}
                 <div style={{ 
                     flex: selectedUser ? '0 0 350px' : '1',
                     padding: '20px', 
@@ -299,8 +250,7 @@ const Friends = () => {
                     <h1 style={{ color: '#28a745', marginBottom: '20px' }}>
                         Friends ({friends.length})
                     </h1>
-                    
-                    {/* Add friend form */}
+                    {}
                     <div style={{ 
                         marginBottom: '25px', 
                         padding: '20px', 
@@ -352,8 +302,7 @@ const Friends = () => {
                             </div>
                         )}
                     </div>
-
-                    {/* Friends list */}
+                    {}
                     {friends.length > 0 ? (
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                             {friends.map((friend) => (
@@ -455,8 +404,7 @@ const Friends = () => {
                         </div>
                     )}
                 </div>
-
-                {/* User Profile Panel */}
+                {}
                 {selectedUser && (
                     <div style={{
                         flex: '1',
@@ -467,7 +415,7 @@ const Friends = () => {
                         maxHeight: '80vh',
                         overflowY: 'auto'
                     }}>
-                        {/* Header */}
+                        {}
                         <div style={{ 
                             display: 'flex', 
                             justifyContent: 'space-between', 
@@ -493,8 +441,7 @@ const Friends = () => {
                                 ×
                             </button>
                         </div>
-
-                        {/* User Info */}
+                        {}
                         <div style={{ 
                             display: 'flex', 
                             alignItems: 'center', 
@@ -541,7 +488,7 @@ const Friends = () => {
                                         Last seen: {new Date(selectedUser.last_login).toLocaleString()}
                                     </p>
                                 )}
-                                {/* Statystyki muzyczne - z bezpiecznym dostępem */}
+                                {}
                                 {selectedUser.musicStats && (
                                     <div style={{ marginTop: '10px', fontSize: '14px', color: '#666' }}>
                                         <span style={{ marginRight: '15px' }}>
@@ -559,8 +506,7 @@ const Friends = () => {
                                 )}
                             </div>
                         </div>
-
-                        {/* Time Range Selector */}
+                        {}
                         <div style={{ marginBottom: '25px' }}>
                             <label style={{ 
                                 marginRight: '15px', 
@@ -584,8 +530,7 @@ const Friends = () => {
                                 <option value="1year">Last Year</option>
                             </select>
                         </div>
-
-                        {/* Top Artists - POPRAWIONE sprawdzenie null/undefined */}
+                        {}
                         <div style={{ marginBottom: '30px' }}>
                             <h3 style={{ 
                                 color: '#007bff', 
@@ -648,8 +593,7 @@ const Friends = () => {
                                 </p>
                             )}
                         </div>
-
-                        {/* Top Tracks - POPRAWIONE sprawdzenie null/undefined */}
+                        {}
                         <div>
                             <h3 style={{ 
                                 color: '#28a745', 
@@ -724,8 +668,7 @@ const Friends = () => {
                     </div>
                 )}
             </div>
-
-            {/* Loading overlay */}
+            {}
             {loadingProfile && (
                 <div style={{
                     position: 'fixed',
@@ -752,5 +695,4 @@ const Friends = () => {
         </div>
     );
 };
-
 export default Friends;

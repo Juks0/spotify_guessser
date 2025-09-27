@@ -1,28 +1,21 @@
 import React, { Component } from "react";
 import { NavigateFunction } from "react-router-dom";
-
-
 const backendApiUrl = import.meta.env.VITE_BACKEND_URL;
-
 interface ArtistImage {
     url: string;
 }
-
 interface Album {
     images: ArtistImage[];
 }
-
 interface Track {
     id: string;
     name: string;
     album: Album;
 }
-
 interface ArtistDetailsProps {
     artistId: string;
-    navigate?: NavigateFunction;  // navigation function prop
+    navigate?: NavigateFunction;  
 }
-
 interface ArtistDetailsState {
     artist: {
         name: string;
@@ -35,7 +28,6 @@ interface ArtistDetailsState {
     loading: boolean;
     songsLoading: boolean;
 }
-
 class ArtistDetails extends Component<ArtistDetailsProps, ArtistDetailsState> {
     state: ArtistDetailsState = {
         artist: null,
@@ -43,22 +35,17 @@ class ArtistDetails extends Component<ArtistDetailsProps, ArtistDetailsState> {
         loading: true,
         songsLoading: true,
     };
-
     componentDidMount(): void {
         this.fetchArtist();
     }
-
     componentDidUpdate(prevProps: ArtistDetailsProps): void {
         if (this.props.artistId !== prevProps.artistId) {
             this.fetchArtist();
         }
     }
-
     fetchArtist() {
         const { artistId } = this.props;
-
         this.setState({ loading: true, artist: null, songsLoading: true, topSongs: [] });
-
         fetch(`${backendApiUrl}/artistdetails?id=${artistId}`, { credentials: "include" })
             .then(res => res.json())
             .then(artistData => {
@@ -78,14 +65,11 @@ class ArtistDetails extends Component<ArtistDetailsProps, ArtistDetailsState> {
                 this.setState({ songsLoading: false });
             });
     }
-
     render() {
         const { artist, loading, topSongs, songsLoading } = this.state;
         const { navigate } = this.props;
-
         if (loading) return <div>Loading artist details...</div>;
         if (!artist) return <div>No artist data found.</div>;
-
         return (
             <div>
                 <h1>Artist Details</h1>
@@ -105,7 +89,6 @@ class ArtistDetails extends Component<ArtistDetailsProps, ArtistDetailsState> {
                         Open in Spotify
                     </a>
                 </p>
-
                 <h3>Top Songs</h3>
                 {songsLoading ? (
                     <p>Loading top songs...</p>
@@ -137,5 +120,4 @@ class ArtistDetails extends Component<ArtistDetailsProps, ArtistDetailsState> {
         );
     }
 }
-
 export default ArtistDetails;

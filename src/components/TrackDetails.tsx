@@ -1,25 +1,20 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-
 const backendApiUrl = import.meta.env.VITE_BACKEND_URL;
-
 interface Artist {
-    id: string;                  // e.g. "4lmMkf4tLyEKBslusiNZdu"
+    id: string;                  
     name: string;
-    uri: string;                 // e.g. "spotify:artist:4lmMkf4tLyEKBslusiNZdu"
+    uri: string;                 
 }
-
 interface AlbumImage {
     url: string;
 }
-
 interface Album {
     total_tracks: number;
     images: AlbumImage[];
     name: string;
     release_date: string;
 }
-
 interface Track {
     album: Album;
     artists: Artist[];
@@ -29,23 +24,18 @@ interface Track {
     preview_url: string | null;
     external_urls: { spotify: string };
 }
-
 interface TrackDetailsProps {
     trackId: string;
 }
-
 const TrackDetails: React.FC<TrackDetailsProps> = ({ trackId }) => {
     const [track, setTrack] = useState<Track | null>(null);
     const [artistImages, setArtistImages] = useState<{ [id: string]: string }>({});
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
-
-    // Fetch track data
     useEffect(() => {
         if (!trackId) return;
         setLoading(true);
         setTrack(null);
-
         const params = new URLSearchParams({ id: trackId });
         fetch(`${backendApiUrl}/trackdetails?${params.toString()}`, { credentials: "include" })
             .then((res) => res.json())
@@ -58,14 +48,10 @@ const TrackDetails: React.FC<TrackDetailsProps> = ({ trackId }) => {
                 setLoading(false);
             });
     }, [trackId]);
-
-    // Fetch images for all artists (as soon as track is loaded)
     useEffect(() => {
         if (!track || !track.artists) return;
-
         track.artists.forEach((artist) => {
-            if (artistImages[artist.id]) return; // Already fetched
-
+            if (artistImages[artist.id]) return; 
             fetch(`${backendApiUrl}/artistdetails?id=${artist.id}`, { credentials: "include" })
                 .then(res => res.json())
                 .then((artistData) => {
@@ -85,11 +71,9 @@ const TrackDetails: React.FC<TrackDetailsProps> = ({ trackId }) => {
                     console.error("Error fetching artist details:", err);
                 });
         });
-    }, [track]); // Deliberately not listing artistImages as a dependency
-
+    }, [track]); 
     if (loading) return <div>Loading track details...</div>;
     if (!track) return <div>No track data found.</div>;
-
     return (
         <div>
             <h1>Track Details</h1>
@@ -98,7 +82,7 @@ const TrackDetails: React.FC<TrackDetailsProps> = ({ trackId }) => {
                 <strong>Artists:</strong>{" "}
                 {track.artists.map((artist) => (
                     <span key={artist.id} style={{ display: "inline-flex", alignItems: "center", marginRight: 16 }}>
-            {/* Artist image if available */}
+            {}
                         {artistImages[artist.id] && artistImages[artist.id] !== "" && (
                             <img
                                 src={artistImages[artist.id]}
@@ -109,7 +93,7 @@ const TrackDetails: React.FC<TrackDetailsProps> = ({ trackId }) => {
                                 onClick={() => navigate(`/artist-details/${artist.id}`)}
                             />
                         )}
-                        {/* Artist name */}
+                        {}
                         <span
                             style={{ cursor: "pointer", fontWeight: "bold" }}
                             onClick={() => navigate(`/artist-details/${artist.id}`)}
@@ -119,28 +103,22 @@ const TrackDetails: React.FC<TrackDetailsProps> = ({ trackId }) => {
           </span>
                 ))}
             </div>
-
             <p>
                 Album: {track.album.name} ({track.album.release_date})
             </p>
-
             {track.album.images[0] && (
                 <img src={track.album.images[0].url} alt={track.name} width={200} />
             )}
-
             <p>
                 Duration: {Math.floor(track.duration_ms / 60000)}:
                 {Math.floor((track.duration_ms % 60000) / 1000).toString().padStart(2, "0")}
             </p>
-
             <p>Popularity: {track.popularity}</p>
-
             <p>
                 <a href={track.external_urls.spotify} target="_blank" rel="noopener noreferrer">
                     Open in Spotify
                 </a>
             </p>
-
             {track.preview_url && (
                 <audio controls src={track.preview_url}>
                     Your browser does not support the audio element.
@@ -149,5 +127,4 @@ const TrackDetails: React.FC<TrackDetailsProps> = ({ trackId }) => {
         </div>
     );
 };
-
 export default TrackDetails;

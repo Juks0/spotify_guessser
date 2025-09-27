@@ -4,7 +4,6 @@ import { createOrUpdateUser, saveTopArtists } from '../database/services.js';
 
 const router = Router();
 
-// Rest of your code remains the same...
 router.get('/topartists', async (req: Request, res: Response) => {
     const access_token = req.cookies['access_token'];
     const refresh_token = req.cookies['refresh_token'];
@@ -45,7 +44,6 @@ router.get('/topartists', async (req: Request, res: Response) => {
         const data = await response.json();
         console.log('Spotify top artists data:', data);
 
-        // Get user data and save to database
         try {
             const userResponse = await fetch('https://api.spotify.com/v1/me', {
                 headers: {
@@ -60,13 +58,13 @@ router.get('/topartists', async (req: Request, res: Response) => {
                 
                 try {
                     const dbUser = await createOrUpdateUser(
-                        userData.id,           // spotifyId
-                        displayName,           // displayName  
-                        userData.email,        // email (optional)
-                        imageUrl,              // imageUrl (optional)
-                        userData.country,      // country (optional)
-                        userData.product,      // product (optional - 'free' | 'premium')
-                        refresh_token          // refreshToken (optional)
+                        userData.id,
+                        displayName,
+                        userData.email,
+                        imageUrl,
+                        userData.country,
+                        userData.product,
+                        refresh_token
                     );
                     
                     if (data.items && Array.isArray(data.items)) {

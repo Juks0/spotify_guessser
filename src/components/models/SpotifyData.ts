@@ -1,10 +1,8 @@
-// src/types/spotify.ts
 export interface SpotifyImage {
     url: string;
     height?: number;
     width?: number;
 }
-
 export interface SpotifyArtist {
     id: string;
     name: string;
@@ -12,7 +10,6 @@ export interface SpotifyArtist {
     popularity: number;
     images: SpotifyImage[];
 }
-
 export interface SpotifyTopArtistsResponse {
     items: SpotifyArtist[];
     limit: number;
