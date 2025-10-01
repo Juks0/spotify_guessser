@@ -1,4 +1,4 @@
-import type React from "react"
+import React from 'react';
 import { useEffect, useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -8,7 +8,7 @@ import { Progress } from "@/components/ui/progress"
 import { ThemeToggle } from "./theme-toggle"
 import { Play, Pause, SkipBack, SkipForward, Volume2, Users, Clock, List, UserPlus, X, Music } from "lucide-react"
 
-// const backendApiUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:3001"
+const backendApiUrl = import.meta.env.VITE_BACKEND_URL;
 
 interface UserData {
   display_name: string
@@ -67,103 +67,7 @@ interface RecentlyPlayedTrack {
   played_at: string
 }
 
-const mockUserData: UserData = {
-  display_name: "Alex Johnson",
-  product: "premium",
-  images: [{ url: "/diverse-user-avatars.png" }],
-  country: "US",
-}
-
-const mockTracks: SpotifyTrack[] = [
-  {
-    id: "1",
-    name: "Blinding Lights",
-    artists: [{ id: "1", name: "The Weeknd" }],
-    album: {
-      id: "1",
-      name: "After Hours",
-      images: [{ url: "/blinding-lights-album-cover.png" }],
-    },
-    duration_ms: 200040,
-    external_urls: { spotify: "" },
-    uri: "spotify:track:1",
-  },
-  {
-    id: "2",
-    name: "Watermelon Sugar",
-    artists: [{ id: "2", name: "Harry Styles" }],
-    album: {
-      id: "2",
-      name: "Fine Line",
-      images: [{ url: "/watermelon-sugar-album-cover.png" }],
-    },
-    duration_ms: 174000,
-    external_urls: { spotify: "" },
-    uri: "spotify:track:2",
-  },
-  {
-    id: "3",
-    name: "Good 4 U",
-    artists: [{ id: "3", name: "Olivia Rodrigo" }],
-    album: {
-      id: "3",
-      name: "SOUR",
-      images: [{ url: "/album-cover-good-4-u.png" }],
-    },
-    duration_ms: 178000,
-    external_urls: { spotify: "" },
-    uri: "spotify:track:3",
-  },
-  {
-    id: "4",
-    name: "Levitating",
-    artists: [{ id: "4", name: "Dua Lipa" }],
-    album: {
-      id: "4",
-      name: "Future Nostalgia",
-      images: [{ url: "/album-cover-levitating.jpg" }],
-    },
-    duration_ms: 203000,
-    external_urls: { spotify: "" },
-    uri: "spotify:track:4",
-  },
-  {
-    id: "5",
-    name: "Stay",
-    artists: [
-      { id: "5", name: "The Kid LAROI" },
-      { id: "6", name: "Justin Bieber" },
-    ],
-    album: {
-      id: "5",
-      name: "Stay",
-      images: [{ url: "/album-cover-stay.png" }],
-    },
-    duration_ms: 141000,
-    external_urls: { spotify: "" },
-    uri: "spotify:track:5",
-  },
-]
-
-const mockFriends: Friend[] = [
-  {
-    id: "1",
-    username: "musiclover23",
-    image: "/friend-avatar-1.jpg",
-    last_login: new Date(Date.now() - 86400000), // 1 day ago
-  },
-  {
-    id: "2",
-    username: "beatdrop",
-    image: "/friend-avatar-2.jpg",
-    last_login: new Date(Date.now() - 3600000), // 1 hour ago
-  },
-  {
-    id: "3",
-    username: "synthwave_fan",
-    last_login: new Date(Date.now() - 7200000), // 2 hours ago
-  },
-]
+// Removed mock data - will be replaced with real data from backend
 
 function getFlagEmoji(countryCode: string) {
   if (!countryCode) return ""
@@ -175,49 +79,50 @@ function getFlagEmoji(countryCode: string) {
 }
 
 export function MusicDashboard() {
-  const [userData, setUserData] = useState<UserData | null>(mockUserData)
-  const [friends, setFriends] = useState<Friend[]>(mockFriends)
+  const [userData, setUserData] = useState<UserData | null>(null)
+  const [friends, setFriends] = useState<Friend[]>([])
   const [friendUsername, setFriendUsername] = useState("")
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState("")
 
-  // Spotify Playback State - Initialize with mock playback state
-  const [playbackState, setPlaybackState] = useState<SpotifyPlaybackState | null>({
-    repeat_state: "off",
-    shuffle_state: false,
-    timestamp: Date.now(),
-    progress_ms: 45000,
-    is_playing: true,
-    item: mockTracks[0],
-  })
-  const [queue, setQueue] = useState<SpotifyQueue | null>({
-    currently_playing: mockTracks[0],
-    queue: mockTracks.slice(1, 4),
-  })
-  const [recentlyPlayed, setRecentlyPlayed] = useState<RecentlyPlayedTrack[]>(
-    mockTracks.slice(0, 5).map((track, index) => ({
-      track,
-      played_at: new Date(Date.now() - (index + 1) * 3600000).toISOString(),
-    })),
-  )
+  // Spotify Playback State - Initialize as null, will be loaded from backend
+  const [playbackState, setPlaybackState] = useState<SpotifyPlaybackState | null>(null)
+  const [queue, setQueue] = useState<SpotifyQueue | null>(null)
+  const [recentlyPlayed, setRecentlyPlayed] = useState<RecentlyPlayedTrack[]>([])
 
   useEffect(() => {
-    console.log("[v0] Loading mock data for music dashboard")
+    console.log('Loading data from backend...')
+    
+    // Load user data
+    fetch(backendApiUrl + '/me', { credentials: 'include' })
+      .then(res => res.json())
+      .then(data => setUserData(data))
+      .catch(console.error)
+    
+    // Load all other data
+    loadFriends()
+    loadCurrentPlayback()
+    loadQueue()
+    loadRecentlyPlayed()
+    
+    // Poll playback state every 5 seconds
+    const playbackInterval = setInterval(loadCurrentPlayback, 5000)
+    
+    return () => clearInterval(playbackInterval)
+  }, [])
 
-    // Simulate progress updates for the currently playing track
+  // Simulate progress updates for the currently playing track
+  useEffect(() => {
+    if (!playbackState?.item || !playbackState.is_playing) return
+
     const progressInterval = setInterval(() => {
       setPlaybackState((prev) => {
         if (prev && prev.item && prev.is_playing && prev.progress_ms !== undefined) {
           const newProgress = prev.progress_ms + 1000
           if (newProgress >= prev.item.duration_ms) {
-            // Track finished, move to next track
-            const currentIndex = mockTracks.findIndex((track) => track.id === prev.item?.id)
-            const nextTrack = mockTracks[(currentIndex + 1) % mockTracks.length]
-            return {
-              ...prev,
-              progress_ms: 0,
-              item: nextTrack,
-            }
+            // Track finished, reload playback state
+            loadCurrentPlayback()
+            return prev
           }
           return {
             ...prev,
@@ -229,21 +134,50 @@ export function MusicDashboard() {
     }, 1000)
 
     return () => clearInterval(progressInterval)
-  }, [])
+  }, [playbackState?.item?.id, playbackState?.is_playing])
 
   const loadCurrentPlayback = async () => {
-    console.log("[v0] Mock: Loading current playback")
-    // Already initialized with mock data
+    try {
+      const response = await fetch(backendApiUrl + '/spotify/playback', { 
+        credentials: 'include' 
+      })
+      if (response.ok) {
+        const data = await response.json()
+        setPlaybackState(data)
+      } else if (response.status !== 204) {
+        console.error('Failed to get playback state')
+      }
+    } catch (error) {
+      console.error('Error loading playback state:', error)
+    }
   }
 
   const loadQueue = async () => {
-    console.log("[v0] Mock: Loading queue")
-    // Already initialized with mock data
+    try {
+      const response = await fetch(backendApiUrl + '/spotify/playback/queue', {
+        credentials: 'include'
+      })
+      if (response.ok) {
+        const data = await response.json()
+        setQueue(data)
+      }
+    } catch (error) {
+      console.error('Error loading queue:', error)
+    }
   }
 
   const loadRecentlyPlayed = async () => {
-    console.log("[v0] Mock: Loading recently played")
-    // Already initialized with mock data
+    try {
+      const response = await fetch(backendApiUrl + '/spotify/recently-played?limit=10', {
+        credentials: 'include'
+      })
+      if (response.ok) {
+        const data = await response.json()
+        setRecentlyPlayed(data.items || [])
+      }
+    } catch (error) {
+      console.error('Error loading recently played:', error)
+    }
   }
 
   const formatTime = (ms: number) => {
@@ -253,8 +187,17 @@ export function MusicDashboard() {
   }
 
   const loadFriends = async () => {
-    console.log("[v0] Mock: Loading friends")
-    // Already initialized with mock data
+    try {
+      const response = await fetch(backendApiUrl + '/friends', { 
+        credentials: 'include' 
+      })
+      if (response.ok) {
+        const friendsData = await response.json()
+        setFriends(friendsData)
+      }
+    } catch (error) {
+      console.error('Error loading friends:', error)
+    }
   }
 
   const addFriend = async () => {
@@ -266,17 +209,31 @@ export function MusicDashboard() {
     setLoading(true)
     setMessage("")
 
-    setTimeout(() => {
-      const newFriend: Friend = {
-        id: Date.now().toString(),
-        username: friendUsername.trim(),
-        last_login: new Date(),
+    try {
+      const response = await fetch(backendApiUrl + '/friends', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({ username: friendUsername.trim() })
+      })
+
+      const result = await response.json()
+
+      if (response.ok) {
+        setMessage("Friend added successfully!")
+        setFriendUsername("")
+        loadFriends()
+      } else {
+        setMessage(result.error || "Failed to add friend")
       }
-      setFriends((prev) => [...prev, newFriend])
-      setMessage("Friend added successfully!")
-      setFriendUsername("")
+    } catch (error) {
+      setMessage("Error adding friend")
+      console.error('Error adding friend:', error)
+    } finally {
       setLoading(false)
-    }, 500)
+    }
   }
 
   const removeFriend = async (friendId: string, friendUsername: string) => {
@@ -284,8 +241,22 @@ export function MusicDashboard() {
       return
     }
 
-    setFriends((prev) => prev.filter((friend) => friend.id !== friendId))
-    setMessage("Friend removed successfully")
+    try {
+      const response = await fetch(backendApiUrl + `/friends/${friendId}`, {
+        method: 'DELETE',
+        credentials: 'include'
+      })
+
+      if (response.ok) {
+        setMessage("Friend removed successfully")
+        loadFriends()
+      } else {
+        setMessage("Failed to remove friend")
+      }
+    } catch (error) {
+      setMessage("Error removing friend")
+      console.error('Error removing friend:', error)
+    }
   }
 
   const handleKeyPress = (e: React.KeyboardEvent) => {

@@ -2,7 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Login from './components/Login.tsx';
 import Callback from '@/components/Callback.tsx';
-import Me from '@/components/Me.tsx';
+import { MusicDashboard } from '@/components/music-dashboard.tsx';
 import Navbar from '@/components/Navbar.tsx';
 import TopArtists from "@/components/TopArtists.js";
 import TopTracks from "@/components/TopTracks.js";
@@ -41,7 +41,7 @@ function Home() {
                             borderRadius: '8px',
                             fontWeight: 'bold'
                         }}>
-                            View Profile
+                            Music Dashboard
                         </a>
                         <a href="/top-artists" style={{ 
                             display: 'inline-block',
@@ -113,7 +113,7 @@ function App() {
                     <Route path="/callback" element={<Callback />} />
                     <Route path="/me" element={
                         <ProtectedRoute>
-                            <Me />
+                            <MusicDashboard />
                         </ProtectedRoute>
                     } />
                     <Route path="/top-artists" element={
