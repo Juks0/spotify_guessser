@@ -55,6 +55,49 @@ export async function testConnection(): Promise<boolean> {
     return false;
   }
 }
+
+// Test direct PostgreSQL connection using Supavisor transaction mode
+export async function testDirectConnection(): Promise<boolean> {
+  try {
+    const { Pool } = await import('pg');
+    
+    // Get connection string from environment
+    const connectionString = process.env.DATABASE_URL;
+    if (!connectionString) {
+      console.error('❌ DATABASE_URL not found in environment variables');
+      return false;
+    }
+
+    // Create pool with transaction mode settings
+    const pool = new Pool({
+      connectionString,
+      // Transaction mode settings
+      max: 1, // Single connection for transaction mode
+      idleTimeoutMillis: 0,
+      connectionTimeoutMillis: 10000,
+      // Disable prepared statements for transaction mode
+      statement_timeout: 0,
+      query_timeout: 0,
+    });
+
+    // Test connection
+    const client = await pool.connect();
+    const result = await client.query('SELECT NOW() as now, version() as version');
+    client.release();
+    await pool.end();
+
+    if (env.ENABLE_LOGS) {
+      console.log('✅ Direct PostgreSQL connection successful');
+      console.log('📊 Database time:', result.rows[0].now);
+      console.log('📊 PostgreSQL version:', result.rows[0].version);
+    }
+    
+    return true;
+  } catch (error) {
+    console.error('❌ Direct PostgreSQL connection failed:', error);
+    return false;
+  }
+}
 if (env.NODE_ENV === 'development') {
   console.log('🔧 Supabase clients initialized');
   console.log('🔍 Supabase URL:', env.SUPABASE_URL);

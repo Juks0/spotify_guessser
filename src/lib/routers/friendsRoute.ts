@@ -1,16 +1,16 @@
 import { Router, Request, Response } from 'express';
 import { getFriends, removeFriend, addFriend, getUserByUsername } from '../database/services.ts';
+
 const router = Router();
+
 router.get('/friends', async (req: Request, res: Response) => {
   const access_token = req.cookies['access_token'];
   if (!access_token) {
     return res.status(401).json({ error: 'Access token not found in cookies' });
   }
   try {
-    const userResponse = await fetch('https:
-      headers: {
-        'Authorization': 'Bearer ' + access_token,
-      }
+    const userResponse = await fetch('https://api.spotify.com/v1/me', {
+      headers: { Authorization: 'Bearer ' + access_token },
     });
     if (!userResponse.ok) {
       throw new Error(`Spotify API error: ${userResponse.status}`);
@@ -23,6 +23,7 @@ router.get('/friends', async (req: Request, res: Response) => {
     res.status(500).json({ error: 'Failed to fetch friends' });
   }
 });
+
 router.post('/friends', async (req: Request, res: Response) => {
   const access_token = req.cookies['access_token'];
   const { username } = req.body;
@@ -33,10 +34,8 @@ router.post('/friends', async (req: Request, res: Response) => {
     return res.status(400).json({ error: 'Username is required' });
   }
   try {
-    const userResponse = await fetch('https:
-      headers: {
-        'Authorization': 'Bearer ' + access_token,
-      }
+    const userResponse = await fetch('https://api.spotify.com/v1/me', {
+      headers: { Authorization: 'Bearer ' + access_token },
     });
     if (!userResponse.ok) {
       throw new Error(`Spotify API error: ${userResponse.status}`);
@@ -56,6 +55,7 @@ router.post('/friends', async (req: Request, res: Response) => {
     res.status(500).json({ error: 'Failed to add friend' });
   }
 });
+
 router.delete('/friends/:friendId', async (req: Request, res: Response) => {
   const access_token = req.cookies['access_token'];
   const friendId = req.params.friendId;
@@ -66,10 +66,8 @@ router.delete('/friends/:friendId', async (req: Request, res: Response) => {
     return res.status(400).json({ error: 'Friend ID is required' });
   }
   try {
-    const userResponse = await fetch('https:
-      headers: {
-        'Authorization': 'Bearer ' + access_token,
-      }
+    const userResponse = await fetch('https://api.spotify.com/v1/me', {
+      headers: { Authorization: 'Bearer ' + access_token },
     });
     if (!userResponse.ok) {
       throw new Error(`Spotify API error: ${userResponse.status}`);
@@ -82,4 +80,5 @@ router.delete('/friends/:friendId', async (req: Request, res: Response) => {
     res.status(500).json({ error: 'Failed to remove friend' });
   }
 });
+
 export default router;

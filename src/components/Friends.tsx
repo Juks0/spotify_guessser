@@ -202,7 +202,7 @@ const Friends = () => {
                 );
                 if (response.ok) {
                     const data = await response.json();
-                    setSelectedUser(prev => {
+                    setSelectedUser((prev: UserProfile | null) => {
                         if (!prev) return null;
                         return {
                             ...prev,
@@ -263,7 +263,7 @@ const Friends = () => {
                                 type="text"
                                 placeholder="Enter username"
                                 value={friendUsername}
-                                onChange={(e) => setFriendUsername(e.target.value)}
+                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFriendUsername(e.target.value)}
                                 onKeyPress={handleKeyPress}
                                 style={{ 
                                     flex: 1,
@@ -305,7 +305,7 @@ const Friends = () => {
                     {}
                     {friends.length > 0 ? (
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                            {friends.map((friend) => (
+                            {friends.map((friend: Friend) => (
                                 <div
                                     key={friend.id}
                                     style={{
@@ -517,7 +517,7 @@ const Friends = () => {
                             </label>
                             <select
                                 value={selectedTimeRange}
-                                onChange={(e) => handleTimeRangeChange(e.target.value as '1month' | '6months' | '1year')}
+                                onChange={(e: React.ChangeEvent<HTMLSelectElement>) => handleTimeRangeChange(e.target.value as '1month' | '6months' | '1year')}
                                 style={{
                                     padding: '8px 12px',
                                     border: '1px solid #ccc',
@@ -546,7 +546,7 @@ const Friends = () => {
                                     gap: '8px',
                                     marginTop: '15px'
                                 }}>
-                                    {selectedUser.topArtists[selectedTimeRange].slice(0, 10).map((artist, index) => (
+                                    {selectedUser.topArtists[selectedTimeRange].slice(0, 10).map((artist: string, index: number) => (
                                         <div 
                                             key={index} 
                                             style={{
@@ -609,7 +609,7 @@ const Friends = () => {
                                     gap: '10px',
                                     marginTop: '15px'
                                 }}>
-                                    {selectedUser.topTracks[selectedTimeRange].slice(0, 10).map((track, index) => (
+                                    {selectedUser.topTracks[selectedTimeRange].slice(0, 10).map((track: { track_name: string; artist_name: string; }, index: number) => (
                                         <div 
                                             key={index} 
                                             style={{

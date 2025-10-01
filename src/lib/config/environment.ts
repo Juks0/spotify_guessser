@@ -20,25 +20,30 @@ console.log('  - SPOTIFY_CLIENT_SECRET:', process.env.SPOTIFY_CLIENT_SECRET ? '*
 console.log('  - SUPABASE_ANON_KEY:', process.env.SUPABASE_ANON_KEY ? '***SET***' : 'MISSING');
 console.log('  - SUPABASE_SERVICE_KEY:', process.env.SUPABASE_SERVICE_KEY ? '***SET***' : 'MISSING');
 export const env = {
-  SUPABASE_URL: 'https:
+  SUPABASE_URL: process.env.SUPABASE_URL || 'https://your-project.supabase.co',
   SUPABASE_ANON_KEY: process.env.SUPABASE_ANON_KEY,
   SUPABASE_SERVICE_KEY: process.env.SUPABASE_SERVICE_KEY,
   SPOTIFY_CLIENT_ID: process.env.SPOTIFY_CLIENT_ID,
   SPOTIFY_CLIENT_SECRET: process.env.SPOTIFY_CLIENT_SECRET,
   NODE_ENV: process.env.NODE_ENV || 'development',
   PORT: parseInt(process.env.AUTH_PORT || '8888'),
-  FRONTEND_URL: process.env.FRONTEND_URL || 'http:
-  BACKEND_URL: process.env.BACKEND_URL || 'http:
-  SERVER_BACKEND_URL: process.env.SERVER_BACKEND_URL || 'http:
+  FRONTEND_URL: process.env.FRONTEND_URL || 'http://localhost:5173',
+  BACKEND_URL: process.env.BACKEND_URL || 'http://localhost:8888',
+  SERVER_BACKEND_URL: process.env.SERVER_BACKEND_URL || 'http://localhost:8888',
   ENABLE_LOGS: process.env.NODE_ENV === 'development',
 } as const;
 const requiredEnvVars = [
   'SPOTIFY_CLIENT_ID',
-  'SPOTIFY_CLIENT_SECRET'
-] as const;
-const optionalEnvVars = [
+  'SPOTIFY_CLIENT_SECRET',
+  'SUPABASE_URL',
   'SUPABASE_ANON_KEY',
   'SUPABASE_SERVICE_KEY'
+] as const;
+const optionalEnvVars = [
+  'AUTH_PORT',
+  'FRONTEND_URL',
+  'BACKEND_URL',
+  'SERVER_BACKEND_URL'
 ] as const;
 const missingRequired: string[] = [];
 for (const envVar of requiredEnvVars) {
