@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Login from './components/Login.tsx';
 import Callback from '@/components/Callback.tsx';
 import { MusicDashboard } from '@/components/music-dashboard.tsx';
-import Navbar from '@/components/Navbar.tsx';
+import { Layout } from './components/Layout.tsx';
 import TopArtists from "@/components/TopArtists.js";
 import TopTracks from "@/components/TopTracks.js";
 import TrackDetailsWrapper from "@/assets/wrappers/TrackDetailsWrapper.tsx";
@@ -12,6 +12,7 @@ import QuizGame from "@/components/QuizGame.tsx";
 import Friends from './components/Friends.tsx';
 import ProtectedRoute from './components/ProtectedRoute.tsx';
 import { AuthProvider, useAuth } from './contexts/AuthContext.tsx';
+import { ThemeProvider } from './components/theme-provider.tsx';
 function Home() {
     const { isAuthenticated, isLoading } = useAuth();
     const backendApiUrl = import.meta.env.VITE_BACKEND_URL;
@@ -35,7 +36,7 @@ function Home() {
                         <a href="/me" style={{ 
                             display: 'inline-block',
                             padding: '12px 24px',
-                            backgroundColor: '#1DB954',
+                            backgroundColor: '#1DB954', /* Spotify green background for Music Dashboard button */
                             color: 'white',
                             textDecoration: 'none',
                             borderRadius: '8px',
@@ -46,7 +47,7 @@ function Home() {
                         <a href="/top-artists" style={{ 
                             display: 'inline-block',
                             padding: '12px 24px',
-                            backgroundColor: '#1DB954',
+                            backgroundColor: '#1DB954', /* Spotify green background for Top Artists button */
                             color: 'white',
                             textDecoration: 'none',
                             borderRadius: '8px',
@@ -57,7 +58,7 @@ function Home() {
                         <a href="/top-tracks" style={{ 
                             display: 'inline-block',
                             padding: '12px 24px',
-                            backgroundColor: '#1DB954',
+                            backgroundColor: '#1DB954', /* Spotify green background for Top Tracks button */
                             color: 'white',
                             textDecoration: 'none',
                             borderRadius: '8px',
@@ -68,7 +69,7 @@ function Home() {
                         <a href="/quiz-game" style={{ 
                             display: 'inline-block',
                             padding: '12px 24px',
-                            backgroundColor: '#1DB954',
+                            backgroundColor: '#1DB954', /* Spotify green background for Quiz Game button */
                             color: 'white',
                             textDecoration: 'none',
                             borderRadius: '8px',
@@ -84,7 +85,7 @@ function Home() {
                     <button 
                         onClick={handleLogin}
                         style={{
-                            backgroundColor: '#1DB954',
+                            backgroundColor: '#1DB954', /* Spotify green background for Login button */
                             color: 'white',
                             border: 'none',
                             padding: '16px 32px',
@@ -104,56 +105,67 @@ function Home() {
 }
 function App() {
     return (
-        <AuthProvider>
-            <Router>
-                <Navbar />
-                <Routes>
-                    <Route path="/" element={<Home />} />
-                    <Route path="/login" element={<Login />} />
-                    <Route path="/callback" element={<Callback />} />
-                    <Route path="/me" element={
-                        <ProtectedRoute>
-                            <MusicDashboard backendUrl={import.meta.env.VITE_BACKEND_URL} />
-                        </ProtectedRoute>
-                    } />
-                    <Route path="/md" element={
-                        <ProtectedRoute>
-                            <MusicDashboard backendUrl={import.meta.env.VITE_BACKEND_URL} />
-                        </ProtectedRoute>
-                    } />
-                    <Route path="/top-artists" element={
-                        <ProtectedRoute>
-                            <TopArtists />
-                        </ProtectedRoute>
-                    } />
-                    <Route path="/top-tracks" element={
-                        <ProtectedRoute>
-                            <TopTracks />
-                        </ProtectedRoute>
-                    } />
-                    <Route path="/track-details/:trackId" element={
-                        <ProtectedRoute>
-                            <TrackDetailsWrapper />
-                        </ProtectedRoute>
-                    } />
-                    <Route path="/artist-details/:artistId" element={
-                        <ProtectedRoute>
-                            <ArtistDetailsWrapper />
-                        </ProtectedRoute>
-                    } />
-                    <Route path="/quiz-game/" element={
-                        <ProtectedRoute>
-                            <QuizGame />
-                        </ProtectedRoute>
-                    } />
-                    <Route path="/friends/" element={
-                        <ProtectedRoute>
-                            <Friends />
-                        </ProtectedRoute>
-                    } />
-                </Routes>
-            </Router>
-        </AuthProvider>
+        <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+        >
+            <AuthProvider>
+                <Router>
+                    <Routes>
+                        {/* Routes without layout (login, callback) */}
+                        <Route path="/login" element={<Login />} />
+                        <Route path="/callback" element={<Callback />} />
+                        
+                        {/* Routes with layout */}
+                        <Route path="/" element={<Layout />}>
+                            <Route index element={<Home />} />
+                            <Route path="me" element={
+                                <ProtectedRoute>
+                                    <MusicDashboard backendUrl={import.meta.env.VITE_BACKEND_URL} />
+                                </ProtectedRoute>
+                            } />
+                            <Route path="md" element={
+                                <ProtectedRoute>
+                                    <MusicDashboard backendUrl={import.meta.env.VITE_BACKEND_URL} />
+                                </ProtectedRoute>
+                            } />
+                            <Route path="top-artists" element={
+                                <ProtectedRoute>
+                                    <TopArtists />
+                                </ProtectedRoute>
+                            } />
+                            <Route path="top-tracks" element={
+                                <ProtectedRoute>
+                                    <TopTracks />
+                                </ProtectedRoute>
+                            } />
+                            <Route path="track-details/:trackId" element={
+                                <ProtectedRoute>
+                                    <TrackDetailsWrapper />
+                                </ProtectedRoute>
+                            } />
+                            <Route path="artist-details/:artistId" element={
+                                <ProtectedRoute>
+                                    <ArtistDetailsWrapper />
+                                </ProtectedRoute>
+                            } />
+                            <Route path="quiz-game" element={
+                                <ProtectedRoute>
+                                    <QuizGame />
+                                </ProtectedRoute>
+                            } />
+                            <Route path="friends" element={
+                                <ProtectedRoute>
+                                    <Friends />
+                                </ProtectedRoute>
+                            } />
+                        </Route>
+                    </Routes>
+                </Router>
+            </AuthProvider>
+        </ThemeProvider>
     );
 }
 export default App;

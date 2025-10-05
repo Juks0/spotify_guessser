@@ -244,7 +244,7 @@ export function MusicDashboard({ backendUrl, withCredentials = true }: MusicDash
       : 0
 
   return (
-    <div className="min-h-screen bg-background p-6">
+    <div className="min-h-screen bg-background p-6"> {/* Main background - uses CSS variable for theme support */}
       <div className="mx-auto max-w-7xl">
         {/* Header */}
         <div className="mb-8 flex items-center justify-between">
@@ -284,10 +284,10 @@ export function MusicDashboard({ backendUrl, withCredentials = true }: MusicDash
                 </div>
               ) : (
                 <div className="flex items-center gap-4">
-                  <div className="h-16 w-16 rounded-full bg-muted animate-pulse" />
+                  <div className="h-16 w-16 rounded-full bg-muted animate-pulse" /> {/* Loading skeleton - muted background */}
                   <div className="flex-1 space-y-2">
-                    <div className="h-4 bg-muted rounded animate-pulse" />
-                    <div className="h-3 bg-muted rounded w-2/3 animate-pulse" />
+                    <div className="h-4 bg-muted rounded animate-pulse" /> {/* Loading skeleton - muted background */}
+                    <div className="h-3 bg-muted rounded w-2/3 animate-pulse" /> {/* Loading skeleton - muted background */}
                   </div>
                 </div>
               )}
@@ -374,7 +374,7 @@ export function MusicDashboard({ backendUrl, withCredentials = true }: MusicDash
                     {queue.queue.slice(0, 8).map((track, index) => (
                       <div
                         key={`${track.id}-${index}`}
-                        className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted/50 transition-colors"
+                        className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted/50 transition-colors" /* Hover background - semi-transparent muted color */
                       >
                         <img
                           src={track.album.images[2]?.url || track.album.images[0]?.url}
@@ -421,7 +421,7 @@ export function MusicDashboard({ backendUrl, withCredentials = true }: MusicDash
                     {recentlyPlayed.map((item, index) => (
                       <div
                         key={`${item.track.id}-${index}`}
-                        className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted/50 transition-colors"
+                        className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted/50 transition-colors" /* Hover background - semi-transparent muted color */
                       >
                         <img
                           src={item.track.album.images[2]?.url || item.track.album.images[0]?.url}
@@ -481,7 +481,7 @@ export function MusicDashboard({ backendUrl, withCredentials = true }: MusicDash
                   friends.map((friend) => (
                     <div
                       key={friend.id}
-                      className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted/50 transition-colors"
+                      className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted/50 transition-colors" /* Hover background - semi-transparent muted color */
                     >
                       {friend.image ? (
                         <img
@@ -490,7 +490,7 @@ export function MusicDashboard({ backendUrl, withCredentials = true }: MusicDash
                           className="h-8 w-8 rounded-full object-cover"
                         />
                       ) : (
-                        <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-xs font-medium">
+                        <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-xs font-medium"> {/* Friend avatar fallback - primary color with 10% opacity */}
                           {friend.username[0].toUpperCase()}
                         </div>
                       )}

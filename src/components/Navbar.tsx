@@ -18,13 +18,13 @@ const Navbar: React.FC = () => {
     };
     if (isLoading) {
         return (
-            <nav style={{ padding: '1rem', background: '#282c34', display: 'flex', alignItems: 'center' }}>
+            <nav style={{ padding: '1rem', background: '#282c34', display: 'flex', alignItems: 'center' }}> {/* Loading navbar - dark gray background */}
                 <div style={{ color: 'white' }}>Loading...</div>
             </nav>
         );
     }
     return (
-        <nav style={{ padding: '1rem', background: '#282c34', display: 'flex', alignItems: 'center' }}>
+        <nav style={{ padding: '1rem', background: '#282c34', display: 'flex', alignItems: 'center' }}> {/* Main navbar - dark gray background */}
             <NavLink
                 to="/me"
                 onClick={handleNavClick}

@@ -50,7 +50,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
                 <button 
                     onClick={() => window.location.href = `${backendApiUrl}/login`}
                     style={{
-                        backgroundColor: '#1DB954',
+                        backgroundColor: '#1DB954', /* Spotify green background for login button */
                         color: 'white',
                         border: 'none',
                         padding: '12px 24px',
