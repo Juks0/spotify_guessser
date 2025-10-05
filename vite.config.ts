@@ -7,11 +7,13 @@ export default defineConfig({
   optimizeDeps: {
     exclude: ['express', 'cookie-parser', 'request'],
   },
-  plugins: [react()],
+  plugins: [
+    react(),
+  ],
   css: {
     postcss: {
       plugins: [
-        require('tailwindcss'),
+        // require('tailwindcss'),
         require('autoprefixer'),
       ],
     },

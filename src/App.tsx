@@ -113,7 +113,12 @@ function App() {
                     <Route path="/callback" element={<Callback />} />
                     <Route path="/me" element={
                         <ProtectedRoute>
-                            <MusicDashboard />
+                            <MusicDashboard backendUrl={import.meta.env.VITE_BACKEND_URL} />
+                        </ProtectedRoute>
+                    } />
+                    <Route path="/md" element={
+                        <ProtectedRoute>
+                            <MusicDashboard backendUrl={import.meta.env.VITE_BACKEND_URL} />
                         </ProtectedRoute>
                     } />
                     <Route path="/top-artists" element={

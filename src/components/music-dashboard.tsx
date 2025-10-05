@@ -1,4 +1,6 @@
-import React from 'react';
+"use client"
+
+import React from "react"
 import { useEffect, useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -8,7 +10,10 @@ import { Progress } from "@/components/ui/progress"
 import { ThemeToggle } from "./theme-toggle"
 import { Play, Pause, SkipBack, SkipForward, Volume2, Users, Clock, List, UserPlus, X, Music } from "lucide-react"
 
-const backendApiUrl = import.meta.env.VITE_BACKEND_URL;
+interface MusicDashboardProps {
+  backendUrl: string
+  withCredentials?: boolean
+}
 
 interface UserData {
   display_name: string
@@ -67,8 +72,6 @@ interface RecentlyPlayedTrack {
   played_at: string
 }
 
-// Removed mock data - will be replaced with real data from backend
-
 function getFlagEmoji(countryCode: string) {
   if (!countryCode) return ""
   const codePoints = countryCode
@@ -78,105 +81,81 @@ function getFlagEmoji(countryCode: string) {
   return String.fromCodePoint(...codePoints)
 }
 
-export function MusicDashboard() {
+export function MusicDashboard({ backendUrl, withCredentials = true }: MusicDashboardProps) {
   const [userData, setUserData] = useState<UserData | null>(null)
   const [friends, setFriends] = useState<Friend[]>([])
   const [friendUsername, setFriendUsername] = useState("")
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState("")
 
-  // Spotify Playback State - Initialize as null, will be loaded from backend
   const [playbackState, setPlaybackState] = useState<SpotifyPlaybackState | null>(null)
   const [queue, setQueue] = useState<SpotifyQueue | null>(null)
   const [recentlyPlayed, setRecentlyPlayed] = useState<RecentlyPlayedTrack[]>([])
 
   useEffect(() => {
-    console.log('Loading data from backend...')
-    
-    // Load user data
-    fetch(backendApiUrl + '/me', { credentials: 'include' })
-      .then(res => res.json())
-      .then(data => setUserData(data))
-      .catch(console.error)
-    
-    // Load all other data
+    loadUserData()
     loadFriends()
     loadCurrentPlayback()
     loadQueue()
     loadRecentlyPlayed()
-    
+
     // Poll playback state every 5 seconds
-    const playbackInterval = setInterval(loadCurrentPlayback, 5000)
-    
-    return () => clearInterval(playbackInterval)
+    const interval = setInterval(() => {
+      loadCurrentPlayback()
+    }, 5000)
+
+    return () => clearInterval(interval)
   }, [])
 
-  // Simulate progress updates for the currently playing track
-  useEffect(() => {
-    if (!playbackState?.item || !playbackState.is_playing) return
-
-    const progressInterval = setInterval(() => {
-      setPlaybackState((prev) => {
-        if (prev && prev.item && prev.is_playing && prev.progress_ms !== undefined) {
-          const newProgress = prev.progress_ms + 1000
-          if (newProgress >= prev.item.duration_ms) {
-            // Track finished, reload playback state
-            loadCurrentPlayback()
-            return prev
-          }
-          return {
-            ...prev,
-            progress_ms: newProgress,
-          }
-        }
-        return prev
+  const loadUserData = async () => {
+    try {
+      const response = await fetch(`${backendUrl}/me`, {
+        credentials: withCredentials ? "include" : "same-origin",
       })
-    }, 1000)
-
-    return () => clearInterval(progressInterval)
-  }, [playbackState?.item?.id, playbackState?.is_playing])
+      if (!response.ok) throw new Error("Failed to fetch user data")
+      const data = await response.json()
+      setUserData(data)
+    } catch (error) {
+      console.error("Error loading user data:", error)
+    }
+  }
 
   const loadCurrentPlayback = async () => {
     try {
-      const response = await fetch(backendApiUrl + '/spotify/playback', { 
-        credentials: 'include' 
+      const response = await fetch(`${backendUrl}/spotify/playback`, {
+        credentials: withCredentials ? "include" : "same-origin",
       })
-      if (response.ok) {
-        const data = await response.json()
-        setPlaybackState(data)
-      } else if (response.status !== 204) {
-        console.error('Failed to get playback state')
-      }
+      if (!response.ok) throw new Error("Failed to fetch playback state")
+      const data = await response.json()
+      setPlaybackState(data)
     } catch (error) {
-      console.error('Error loading playback state:', error)
+      console.error("Error loading playback state:", error)
     }
   }
 
   const loadQueue = async () => {
     try {
-      const response = await fetch(backendApiUrl + '/spotify/playback/queue', {
-        credentials: 'include'
+      const response = await fetch(`${backendUrl}/spotify/playback/queue`, {
+        credentials: withCredentials ? "include" : "same-origin",
       })
-      if (response.ok) {
-        const data = await response.json()
-        setQueue(data)
-      }
+      if (!response.ok) throw new Error("Failed to fetch queue")
+      const data = await response.json()
+      setQueue(data)
     } catch (error) {
-      console.error('Error loading queue:', error)
+      console.error("Error loading queue:", error)
     }
   }
 
   const loadRecentlyPlayed = async () => {
     try {
-      const response = await fetch(backendApiUrl + '/spotify/recently-played?limit=10', {
-        credentials: 'include'
+      const response = await fetch(`${backendUrl}/spotify/recently-played`, {
+        credentials: withCredentials ? "include" : "same-origin",
       })
-      if (response.ok) {
-        const data = await response.json()
-        setRecentlyPlayed(data.items || [])
-      }
+      if (!response.ok) throw new Error("Failed to fetch recently played")
+      const data = await response.json()
+      setRecentlyPlayed(data.items || [])
     } catch (error) {
-      console.error('Error loading recently played:', error)
+      console.error("Error loading recently played:", error)
     }
   }
 
@@ -188,15 +167,14 @@ export function MusicDashboard() {
 
   const loadFriends = async () => {
     try {
-      const response = await fetch(backendApiUrl + '/friends', { 
-        credentials: 'include' 
+      const response = await fetch(`${backendUrl}/friends`, {
+        credentials: withCredentials ? "include" : "same-origin",
       })
-      if (response.ok) {
-        const friendsData = await response.json()
-        setFriends(friendsData)
-      }
+      if (!response.ok) throw new Error("Failed to fetch friends")
+      const data = await response.json()
+      setFriends(data)
     } catch (error) {
-      console.error('Error loading friends:', error)
+      console.error("Error loading friends:", error)
     }
   }
 
@@ -210,27 +188,25 @@ export function MusicDashboard() {
     setMessage("")
 
     try {
-      const response = await fetch(backendApiUrl + '/friends', {
-        method: 'POST',
+      const response = await fetch(`${backendUrl}/friends`, {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
-        credentials: 'include',
-        body: JSON.stringify({ username: friendUsername.trim() })
+        credentials: withCredentials ? "include" : "same-origin",
+        body: JSON.stringify({ username: friendUsername }),
       })
 
-      const result = await response.json()
-
-      if (response.ok) {
-        setMessage("Friend added successfully!")
-        setFriendUsername("")
-        loadFriends()
-      } else {
-        setMessage(result.error || "Failed to add friend")
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.message || "Failed to add friend")
       }
+
+      await loadFriends()
+      setMessage("Friend added successfully!")
+      setFriendUsername("")
     } catch (error) {
-      setMessage("Error adding friend")
-      console.error('Error adding friend:', error)
+      setMessage(error instanceof Error ? error.message : "Failed to add friend")
     } finally {
       setLoading(false)
     }
@@ -242,20 +218,17 @@ export function MusicDashboard() {
     }
 
     try {
-      const response = await fetch(backendApiUrl + `/friends/${friendId}`, {
-        method: 'DELETE',
-        credentials: 'include'
+      const response = await fetch(`${backendUrl}/friends/${friendId}`, {
+        method: "DELETE",
+        credentials: withCredentials ? "include" : "same-origin",
       })
 
-      if (response.ok) {
-        setMessage("Friend removed successfully")
-        loadFriends()
-      } else {
-        setMessage("Failed to remove friend")
-      }
+      if (!response.ok) throw new Error("Failed to remove friend")
+
+      await loadFriends()
+      setMessage("Friend removed successfully")
     } catch (error) {
-      setMessage("Error removing friend")
-      console.error('Error removing friend:', error)
+      setMessage(error instanceof Error ? error.message : "Failed to remove friend")
     }
   }
 
