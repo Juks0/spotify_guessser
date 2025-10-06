@@ -119,7 +119,7 @@ const TopTracks = () => {
             {tracks.map((track, index) => (
               <Card
                 key={track.id}
-                className="group cursor-pointer overflow-hidden transition-all hover:shadow-xl hover:scale-105 hover:border-primary/50"
+                className="group cursor-pointer overflow-hidden transition-all duration-500 ease-in-out hover:shadow-xl hover:scale-105 hover:border-primary/50"
                 onClick={() => navigate(`/track-details/${track.id}`)}
               >
                 <CardContent className="p-0">
@@ -130,9 +130,9 @@ const TopTracks = () => {
                         <img
                           src={track.album.images[0].url || "/placeholder.svg"}
                           alt={track.name}
-                          className="w-full h-full object-cover transition-transform group-hover:scale-110"
+                          className="w-full h-full object-cover transition-transform duration-500 ease-in-out group-hover:scale-110"
                         />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 ease-in-out" />
 
                         {/* Rank Badge */}
                         <div className="absolute top-3 left-3">
@@ -141,18 +141,6 @@ const TopTracks = () => {
                           </Badge>
                         </div>
 
-                        {/* Play Icon Overlay */}
-                        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                          <div className="w-16 h-16 rounded-full bg-primary/90 flex items-center justify-center">
-                            <svg
-                              className="w-8 h-8 text-primary-foreground ml-1"
-                              fill="currentColor"
-                              viewBox="0 0 24 24"
-                            >
-                              <path d="M8 5v14l11-7z" />
-                            </svg>
-                          </div>
-                        </div>
                       </>
                     ) : (
                       <div className="w-full h-full flex items-center justify-center">
@@ -176,7 +164,7 @@ const TopTracks = () => {
                   {/* Track Info */}
                   <div className="p-4 space-y-3">
                     <div>
-                      <h3 className="font-semibold text-foreground line-clamp-1 group-hover:text-primary transition-colors">
+                      <h3 className="font-semibold text-foreground line-clamp-1 group-hover:text-primary transition-colors duration-500 ease-in-out">
                         {track.name}
                       </h3>
                       <p className="text-sm text-muted-foreground line-clamp-1">

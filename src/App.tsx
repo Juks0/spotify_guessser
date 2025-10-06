@@ -22,39 +22,39 @@ function Home() {
     
     if (isLoading) {
         return (
-            <div className="min-h-screen bg-slate-900 flex items-center justify-center">
+            <div className="min-h-screen bg-background flex items-center justify-center">
                 <div className="text-center">
-                    <div className="w-16 h-16 border-4 border-green-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                    <h1 className="text-white text-2xl font-semibold">Loading...</h1>
+                    <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                    <h1 className="text-foreground text-2xl font-semibold">Loading...</h1>
                 </div>
             </div>
         );
     }
     
     return (
-        <div className="min-h-screen bg-slate-900 text-white">
+        <div className="min-h-screen bg-background text-foreground">
             <div className="container mx-auto px-6 py-20">
                 <div className="text-center max-w-4xl mx-auto">
                     {/* Hero Section */}
                     <div className="mb-12">
-                        <h1 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-green-400 to-green-600 bg-clip-text text-transparent">
+                        <h1 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
                             Spotify Analytics
                         </h1>
-                        <p className="text-xl text-slate-300 mb-8">
+                        <p className="text-xl text-muted-foreground mb-8">
                             Discover your music taste and explore your Spotify data
                         </p>
                     </div>
 
                     {isAuthenticated ? (
                         <div className="space-y-8">
-                            <div className="bg-slate-800 rounded-lg p-6 border border-slate-700">
+                            <div className="bg-card rounded-lg p-6 border border-border">
                                 <div className="flex items-center justify-center mb-4">
-                                    <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center mr-3">
-                                        <span className="text-white font-bold text-xl">✓</span>
+                                    <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center mr-3">
+                                        <span className="text-primary-foreground font-bold text-xl">✓</span>
                                     </div>
-                                    <h2 className="text-2xl font-semibold">Welcome back!</h2>
+                                    <h2 className="text-2xl font-semibold text-card-foreground">Welcome back!</h2>
                                 </div>
-                                <p className="text-slate-300 text-lg mb-6">
+                                <p className="text-muted-foreground text-lg mb-6">
                                     🎉 You're logged in! Explore your music data below.
                                 </p>
                             </div>
@@ -63,71 +63,71 @@ function Home() {
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                                 <a 
                                     href="/me" 
-                                    className="group bg-slate-800 hover:bg-slate-700 rounded-lg p-6 border border-slate-700 hover:border-green-500 transition-all duration-300 transform hover:scale-105"
+                                    className="group bg-card hover:bg-accent rounded-lg p-6 border border-border hover:border-primary transition-all duration-300 transform hover:scale-105"
                                 >
                                     <div className="text-center">
-                                        <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-green-400 transition-colors">
-                                            <span className="text-white font-bold text-2xl">📊</span>
+                                        <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-primary/80 transition-colors">
+                                            <span className="text-primary-foreground font-bold text-2xl">📊</span>
                                         </div>
-                                        <h3 className="text-lg font-semibold mb-2">Music Dashboard</h3>
-                                        <p className="text-slate-400 text-sm">View your music analytics</p>
+                                        <h3 className="text-lg font-semibold mb-2 text-card-foreground">Music Dashboard</h3>
+                                        <p className="text-muted-foreground text-sm">View your music analytics</p>
                                     </div>
                                 </a>
 
                                 <a 
                                     href="/top-artists" 
-                                    className="group bg-slate-800 hover:bg-slate-700 rounded-lg p-6 border border-slate-700 hover:border-green-500 transition-all duration-300 transform hover:scale-105"
+                                    className="group bg-card hover:bg-accent rounded-lg p-6 border border-border hover:border-primary transition-all duration-300 transform hover:scale-105"
                                 >
                                     <div className="text-center">
-                                        <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-green-400 transition-colors">
-                                            <span className="text-white font-bold text-2xl">🎤</span>
+                                        <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-primary/80 transition-colors">
+                                            <span className="text-primary-foreground font-bold text-2xl">🎤</span>
                                         </div>
-                                        <h3 className="text-lg font-semibold mb-2">Top Artists</h3>
-                                        <p className="text-slate-400 text-sm">Your favorite artists</p>
+                                        <h3 className="text-lg font-semibold mb-2 text-card-foreground">Top Artists</h3>
+                                        <p className="text-muted-foreground text-sm">Your favorite artists</p>
                                     </div>
                                 </a>
 
                                 <a 
                                     href="/top-tracks" 
-                                    className="group bg-slate-800 hover:bg-slate-700 rounded-lg p-6 border border-slate-700 hover:border-green-500 transition-all duration-300 transform hover:scale-105"
+                                    className="group bg-card hover:bg-accent rounded-lg p-6 border border-border hover:border-primary transition-all duration-300 transform hover:scale-105"
                                 >
                                     <div className="text-center">
-                                        <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-green-400 transition-colors">
-                                            <span className="text-white font-bold text-2xl">🎵</span>
+                                        <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-primary/80 transition-colors">
+                                            <span className="text-primary-foreground font-bold text-2xl">🎵</span>
                                         </div>
-                                        <h3 className="text-lg font-semibold mb-2">Top Tracks</h3>
-                                        <p className="text-slate-400 text-sm">Your favorite songs</p>
+                                        <h3 className="text-lg font-semibold mb-2 text-card-foreground">Top Tracks</h3>
+                                        <p className="text-muted-foreground text-sm">Your favorite songs</p>
                                     </div>
                                 </a>
 
                                 <a 
                                     href="/quiz-game" 
-                                    className="group bg-slate-800 hover:bg-slate-700 rounded-lg p-6 border border-slate-700 hover:border-green-500 transition-all duration-300 transform hover:scale-105"
+                                    className="group bg-card hover:bg-accent rounded-lg p-6 border border-border hover:border-primary transition-all duration-300 transform hover:scale-105"
                                 >
                                     <div className="text-center">
-                                        <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-green-400 transition-colors">
-                                            <span className="text-white font-bold text-2xl">🎮</span>
+                                        <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-primary/80 transition-colors">
+                                            <span className="text-primary-foreground font-bold text-2xl">🎮</span>
                                         </div>
-                                        <h3 className="text-lg font-semibold mb-2">Quiz Game</h3>
-                                        <p className="text-slate-400 text-sm">Test your music knowledge</p>
+                                        <h3 className="text-lg font-semibold mb-2 text-card-foreground">Quiz Game</h3>
+                                        <p className="text-muted-foreground text-sm">Test your music knowledge</p>
                                     </div>
                                 </a>
                             </div>
                         </div>
                     ) : (
                         <div className="max-w-2xl mx-auto">
-                            <div className="bg-slate-800 rounded-lg p-8 border border-slate-700 mb-8">
+                            <div className="bg-card rounded-lg p-8 border border-border mb-8">
                                 <div className="text-center">
-                                    <div className="w-20 h-20 bg-slate-700 rounded-full flex items-center justify-center mx-auto mb-6">
+                                    <div className="w-20 h-20 bg-muted rounded-full flex items-center justify-center mx-auto mb-6">
                                         <span className="text-4xl">🔒</span>
                                     </div>
-                                    <h2 className="text-2xl font-semibold mb-4">Get Started</h2>
-                                    <p className="text-slate-300 text-lg mb-8">
+                                    <h2 className="text-2xl font-semibold mb-4 text-card-foreground">Get Started</h2>
+                                    <p className="text-muted-foreground text-lg mb-8">
                                         Please log in to access your Spotify data and discover your music preferences!
                                     </p>
                                     <button 
                                         onClick={handleLogin}
-                                        className="bg-green-600 hover:bg-green-700 text-white px-8 py-4 rounded-lg text-lg font-semibold transition-colors duration-200 border border-green-600 hover:border-green-700 transform hover:scale-105"
+                                        className="bg-primary hover:bg-primary/90 text-primary-foreground px-8 py-4 rounded-lg text-lg font-semibold transition-colors duration-200 border border-primary hover:border-primary/90 transform hover:scale-105"
                                     >
                                         Login with Spotify
                                     </button>
@@ -136,26 +136,26 @@ function Home() {
                             
                             {/* Features Preview */}
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
-                                <div className="bg-slate-800 rounded-lg p-6 border border-slate-700">
-                                    <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                                        <span className="text-white font-bold text-xl">📊</span>
+                                <div className="bg-card rounded-lg p-6 border border-border">
+                                    <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center mx-auto mb-4">
+                                        <span className="text-primary-foreground font-bold text-xl">📊</span>
                                     </div>
-                                    <h3 className="text-lg font-semibold mb-2">Analytics</h3>
-                                    <p className="text-slate-400 text-sm">Deep insights into your music taste</p>
+                                    <h3 className="text-lg font-semibold mb-2 text-card-foreground">Analytics</h3>
+                                    <p className="text-muted-foreground text-sm">Deep insights into your music taste</p>
                                 </div>
-                                <div className="bg-slate-800 rounded-lg p-6 border border-slate-700">
-                                    <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                                        <span className="text-white font-bold text-xl">🎵</span>
+                                <div className="bg-card rounded-lg p-6 border border-border">
+                                    <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center mx-auto mb-4">
+                                        <span className="text-primary-foreground font-bold text-xl">🎵</span>
                                     </div>
-                                    <h3 className="text-lg font-semibold mb-2">Discover</h3>
-                                    <p className="text-slate-400 text-sm">Find your top artists and tracks</p>
+                                    <h3 className="text-lg font-semibold mb-2 text-card-foreground">Discover</h3>
+                                    <p className="text-muted-foreground text-sm">Find your top artists and tracks</p>
                                 </div>
-                                <div className="bg-slate-800 rounded-lg p-6 border border-slate-700">
-                                    <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                                        <span className="text-white font-bold text-xl">🎮</span>
+                                <div className="bg-card rounded-lg p-6 border border-border">
+                                    <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center mx-auto mb-4">
+                                        <span className="text-primary-foreground font-bold text-xl">🎮</span>
                                     </div>
-                                    <h3 className="text-lg font-semibold mb-2">Play</h3>
-                                    <p className="text-slate-400 text-sm">Interactive music quizzes</p>
+                                    <h3 className="text-lg font-semibold mb-2 text-card-foreground">Play</h3>
+                                    <p className="text-muted-foreground text-sm">Interactive music quizzes</p>
                                 </div>
                             </div>
                         </div>

@@ -24,23 +24,23 @@ const Navbar: React.FC = () => {
 
     if (isLoading) {
         return (
-            <nav className="bg-slate-900 px-6 py-4 shadow-lg border-b border-slate-700">
+            <nav className="bg-background px-6 py-4 shadow-lg border-b border-border">
                 <div className="flex items-center justify-between">
-                    <div className="text-white text-lg font-semibold">Loading...</div>
+                    <div className="text-foreground text-lg font-semibold">Loading...</div>
                 </div>
             </nav>
         );
     }
 
     return (
-        <nav className="bg-slate-900 px-6 py-4 shadow-lg border-b border-slate-700">
+        <nav className="bg-background px-6 py-4 shadow-lg border-b border-border">
             <div className="flex items-center justify-between">
                 {/* Logo/Brand */}
                 <div className="flex items-center space-x-2">
-                    <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
-                        <span className="text-white font-bold text-sm">S</span>
+                    <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
+                        <img src="/logo.webp" alt="Logo" className="w-full h-full object-contain" />
                     </div>
-                    <span className="text-white text-xl font-bold">Spotify Guesser</span>
+                    <span className="text-foreground text-xl font-bold">Spoti Agent</span>
                 </div>
 
                 {/* Navigation Links */}
@@ -51,10 +51,10 @@ const Navbar: React.FC = () => {
                         className={({ isActive }) => 
                             `px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 ${
                                 isActive 
-                                    ? 'bg-green-600 text-white' 
+                                    ? 'bg-primary text-primary-foreground' 
                                     : isAuthenticated 
-                                        ? 'text-slate-300 hover:text-white hover:bg-slate-800' 
-                                        : 'text-slate-500 cursor-not-allowed'
+                                        ? 'text-muted-foreground hover:text-foreground hover:bg-accent' 
+                                        : 'text-muted-foreground/50 cursor-not-allowed'
                             }`
                         }
                     >
@@ -66,10 +66,10 @@ const Navbar: React.FC = () => {
                         className={({ isActive }) => 
                             `px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 ${
                                 isActive 
-                                    ? 'bg-green-600 text-white' 
+                                    ? 'bg-primary text-primary-foreground' 
                                     : isAuthenticated 
-                                        ? 'text-slate-300 hover:text-white hover:bg-slate-800' 
-                                        : 'text-slate-500 cursor-not-allowed'
+                                        ? 'text-muted-foreground hover:text-foreground hover:bg-accent' 
+                                        : 'text-muted-foreground/50 cursor-not-allowed'
                             }`
                         }
                     >
@@ -81,10 +81,10 @@ const Navbar: React.FC = () => {
                         className={({ isActive }) => 
                             `px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 ${
                                 isActive 
-                                    ? 'bg-green-600 text-white' 
+                                    ? 'bg-primary text-primary-foreground' 
                                     : isAuthenticated 
-                                        ? 'text-slate-300 hover:text-white hover:bg-slate-800' 
-                                        : 'text-slate-500 cursor-not-allowed'
+                                        ? 'text-muted-foreground hover:text-foreground hover:bg-accent' 
+                                        : 'text-muted-foreground/50 cursor-not-allowed'
                             }`
                         }
                     >
@@ -96,10 +96,10 @@ const Navbar: React.FC = () => {
                         className={({ isActive }) => 
                             `px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 ${
                                 isActive 
-                                    ? 'bg-green-600 text-white' 
+                                    ? 'bg-primary text-primary-foreground' 
                                     : isAuthenticated 
-                                        ? 'text-slate-300 hover:text-white hover:bg-slate-800' 
-                                        : 'text-slate-500 cursor-not-allowed'
+                                        ? 'text-muted-foreground hover:text-foreground hover:bg-accent' 
+                                        : 'text-muted-foreground/50 cursor-not-allowed'
                             }`
                         }
                     >
@@ -113,14 +113,14 @@ const Navbar: React.FC = () => {
                     {isAuthenticated ? (
                         <button
                             onClick={handleLogout}
-                            className="bg-transparent border border-slate-400 text-slate-300 hover:text-white hover:border-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200"
+                            className="bg-transparent border border-border text-muted-foreground hover:text-foreground hover:border-foreground px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200"
                         >
                             Logout
                         </button>
                     ) : (
                         <button
                             onClick={handleLogin}
-                            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 border border-green-600 hover:border-green-700"
+                            className="bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 border border-primary hover:border-primary/90"
                         >
                             Login with Spotify
                         </button>
@@ -137,10 +137,10 @@ const Navbar: React.FC = () => {
                         className={({ isActive }) => 
                             `px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 ${
                                 isActive 
-                                    ? 'bg-green-600 text-white' 
+                                    ? 'bg-primary text-primary-foreground' 
                                     : isAuthenticated 
-                                        ? 'text-slate-300 hover:text-white hover:bg-slate-800' 
-                                        : 'text-slate-500 cursor-not-allowed'
+                                        ? 'text-muted-foreground hover:text-foreground hover:bg-accent' 
+                                        : 'text-muted-foreground/50 cursor-not-allowed'
                             }`
                         }
                     >
@@ -152,10 +152,10 @@ const Navbar: React.FC = () => {
                         className={({ isActive }) => 
                             `px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 ${
                                 isActive 
-                                    ? 'bg-green-600 text-white' 
+                                    ? 'bg-primary text-primary-foreground' 
                                     : isAuthenticated 
-                                        ? 'text-slate-300 hover:text-white hover:bg-slate-800' 
-                                        : 'text-slate-500 cursor-not-allowed'
+                                        ? 'text-muted-foreground hover:text-foreground hover:bg-accent' 
+                                        : 'text-muted-foreground/50 cursor-not-allowed'
                             }`
                         }
                     >
@@ -167,10 +167,10 @@ const Navbar: React.FC = () => {
                         className={({ isActive }) => 
                             `px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 ${
                                 isActive 
-                                    ? 'bg-green-600 text-white' 
+                                    ? 'bg-primary text-primary-foreground' 
                                     : isAuthenticated 
-                                        ? 'text-slate-300 hover:text-white hover:bg-slate-800' 
-                                        : 'text-slate-500 cursor-not-allowed'
+                                        ? 'text-muted-foreground hover:text-foreground hover:bg-accent' 
+                                        : 'text-muted-foreground/50 cursor-not-allowed'
                             }`
                         }
                     >
@@ -182,10 +182,10 @@ const Navbar: React.FC = () => {
                         className={({ isActive }) => 
                             `px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 ${
                                 isActive 
-                                    ? 'bg-green-600 text-white' 
+                                    ? 'bg-primary text-primary-foreground' 
                                     : isAuthenticated 
-                                        ? 'text-slate-300 hover:text-white hover:bg-slate-800' 
-                                        : 'text-slate-500 cursor-not-allowed'
+                                        ? 'text-muted-foreground hover:text-foreground hover:bg-accent' 
+                                        : 'text-muted-foreground/50 cursor-not-allowed'
                             }`
                         }
                     >
