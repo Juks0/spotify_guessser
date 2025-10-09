@@ -1,5 +1,5 @@
 "use client"
-import React from 'react';
+import React from "react"
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { Card, CardContent } from "./ui/card"
@@ -19,6 +19,7 @@ const TopArtists = () => {
   const [artists, setArtists] = useState<Artist[]>([])
   const [timeRange, setTimeRange] = useState("medium_term")
   const [limit, setLimit] = useState(20)
+  const [gridSize, setGridSize] = useState("large")
   const [loading, setLoading] = useState(true)
   const navigate = useNavigate()
 
@@ -29,6 +30,21 @@ const TopArtists = () => {
   ]
 
   const limitOptions = [10, 20, 50]
+  const gridSizeOptions = [
+    { label: "Large", value: "large" },
+    { label: "Medium", value: "medium" },
+    { label: "Small", value: "small" }
+  ]
+
+  const getGridClasses = (size: string) => {
+    const baseClasses = "grid gap-3 sm:gap-4"
+    const columnClasses = {
+      large: "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5",
+      medium: "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6",
+      small: "grid-cols-2 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8"
+    }
+    return `${baseClasses} ${columnClasses[size as keyof typeof columnClasses]}`
+  }
 
   useEffect(() => {
     setLoading(true)
@@ -56,7 +72,7 @@ const TopArtists = () => {
         <div className="flex flex-col gap-6">
           <div>
             <h1 className="text-4xl font-bold text-foreground mb-2">Top Artists</h1>
-            <p className="text-muted-foreground">Your most played artists on Spotify</p>
+            <p className="text-muted-foreground">Your most listened to artists on Spotify</p>
           </div>
 
           {/* Filters */}
@@ -100,6 +116,26 @@ const TopArtists = () => {
                 ))}
               </div>
             </div>
+
+            {/* Grid Size Filter */}
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-medium text-muted-foreground">Grid Size</label>
+              <div className="flex gap-2">
+                {gridSizeOptions.map((option) => (
+                  <button
+                    key={option.value}
+                    onClick={() => setGridSize(option.value)}
+                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                      gridSize === option.value
+                        ? "bg-primary text-primary-foreground shadow-lg"
+                        : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
+                    }`}
+                  >
+                    {option.label}
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
 
@@ -112,68 +148,46 @@ const TopArtists = () => {
             </div>
           </div>
         ) : artists.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          <div className={getGridClasses(gridSize)}>
             {artists.map((artist, index) => (
               <Card
                 key={artist.id}
-                className="group cursor-pointer overflow-hidden transition-all duration-500 ease-in-out hover:shadow-xl hover:scale-105 hover:border-primary/50"
+                className="group cursor-pointer overflow-hidden transition-all hover:scale-105 hover:shadow-lg active:scale-95"
                 onClick={() => navigate(`/artist-details/${artist.id}`)}
               >
                 <CardContent className="p-0">
-                  {/* Artist Image */}
                   <div className="relative aspect-square overflow-hidden bg-muted">
                     {artist.images && artist.images.length > 0 ? (
-                      <>
-                        <img
-                          src={artist.images[0].url || "/placeholder.svg"}
-                          alt={artist.name}
-                          className="w-full h-full object-cover transition-transform duration-500 ease-in-out group-hover:scale-110"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 ease-in-out" />
-
-                        {/* Rank Badge */}
-                        <div className="absolute top-3 left-3">
-                          <Badge className="bg-primary text-primary-foreground font-bold text-lg px-3 py-1">
-                            #{index + 1}
-                          </Badge>
-                        </div>
-
-                      </>
+                      <img
+                        src={artist.images[0].url || "/placeholder.svg"}
+                        alt={artist.name}
+                        className="h-full w-full object-cover transition-transform group-hover:scale-110"
+                      />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center">
-                        <div className="text-center">
-                          <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-2">
-                            <span className="text-2xl font-bold text-primary">{artist.name.charAt(0)}</span>
-                          </div>
-                          <p className="text-xs text-muted-foreground">No Image</p>
-                        </div>
+                      <div className="flex h-full w-full items-center justify-center bg-muted">
+                        <span className="text-3xl sm:text-4xl font-bold text-muted-foreground">
+                          {artist.name.charAt(0)}
+                        </span>
                       </div>
                     )}
-                  </div>
-
-                  {/* Artist Info */}
-                  <div className="p-4 space-y-3">
-                    <div>
-                      <h3 className="font-semibold text-foreground line-clamp-1 group-hover:text-primary transition-colors duration-500 ease-in-out">
-                        {artist.name}
-                      </h3>
-                      <p className="text-sm text-muted-foreground line-clamp-1">
-                        {artist.genres && artist.genres.length > 0 ? artist.genres.slice(0, 2).join(", ") : "No genres"}
-                      </p>
+                    <div className="absolute top-2 left-2">
+                      <Badge variant="secondary" className="bg-background/80 backdrop-blur-sm text-xs">
+                        #{index + 1}
+                      </Badge>
                     </div>
-
-                    {/* Popularity Meter */}
-                    <div className="space-y-1">
-                      <div className="flex items-center justify-between text-xs">
-                        <span className="text-muted-foreground">Popularity</span>
-                        <span className="font-medium text-foreground">{artist.popularity}%</span>
+                  </div>
+                  <div className="space-y-1.5 sm:space-y-2 p-2.5 sm:p-3">
+                    <h3 className="font-semibold text-sm sm:text-base leading-tight line-clamp-1">{artist.name}</h3>
+                    {artist.genres && artist.genres.length > 0 && (
+                      <p className="text-xs text-muted-foreground line-clamp-1">
+                        {artist.genres.slice(0, 2).join(", ")}
+                      </p>
+                    )}
+                    <div className="flex items-center gap-1">
+                      <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-secondary">
+                        <div className="h-full bg-primary transition-all" style={{ width: `${artist.popularity}%` }} />
                       </div>
-                      <div className="h-1.5 bg-secondary rounded-full overflow-hidden">
-                        <div
-                          className="h-full bg-gradient-to-r from-primary to-primary/70 rounded-full transition-all"
-                          style={{ width: `${artist.popularity}%` }}
-                        />
-                      </div>
+                      <span className="text-xs text-muted-foreground">{artist.popularity}%</span>
                     </div>
                   </div>
                 </CardContent>

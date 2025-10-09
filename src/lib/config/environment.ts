@@ -29,7 +29,7 @@ export const env = {
   PORT: parseInt(process.env.AUTH_PORT || '8888'),
   FRONTEND_URL: process.env.FRONTEND_URL || 'http://localhost:5173',
   BACKEND_URL: process.env.BACKEND_URL || 'http://localhost:8888',
-  SERVER_BACKEND_URL: process.env.SERVER_BACKEND_URL || 'http://localhost:8888',
+  SERVER_BACKEND_URL: process.env.SERVER_BACKEND_URL || 'https://localhost:3001',
   ENABLE_LOGS: process.env.NODE_ENV === 'development',
 } as const;
 const requiredEnvVars = [
@@ -40,7 +40,6 @@ const requiredEnvVars = [
   'SUPABASE_SERVICE_KEY'
 ] as const;
 const optionalEnvVars = [
-  'AUTH_PORT',
   'FRONTEND_URL',
   'BACKEND_URL',
   'SERVER_BACKEND_URL'

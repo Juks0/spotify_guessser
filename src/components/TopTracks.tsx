@@ -22,6 +22,7 @@ const TopTracks = () => {
   const [tracks, setTracks] = useState<Track[]>([])
   const [timeRange, setTimeRange] = useState("medium_term")
   const [limit, setLimit] = useState(20)
+  const [gridSize, setGridSize] = useState("large")
   const [loading, setLoading] = useState(true)
   const navigate = useNavigate()
 
@@ -32,6 +33,21 @@ const TopTracks = () => {
   ]
 
   const limitOptions = [10, 20, 50]
+  const gridSizeOptions = [
+    { label: "Large", value: "large" },
+    { label: "Medium", value: "medium" },
+    { label: "Small", value: "small" }
+  ]
+
+  const getGridClasses = (size: string) => {
+    const baseClasses = "grid gap-4"
+    const columnClasses = {
+      large: "grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4",
+      medium: "grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 2xl:grid-cols-6",
+      small: "grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 2xl:grid-cols-8"
+    }
+    return `${baseClasses} ${columnClasses[size as keyof typeof columnClasses]}`
+  }
 
   useEffect(() => {
     setLoading(true)
@@ -103,6 +119,26 @@ const TopTracks = () => {
                 ))}
               </div>
             </div>
+
+            {/* Grid Size Filter */}
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-medium text-muted-foreground">Grid Size</label>
+              <div className="flex gap-2">
+                {gridSizeOptions.map((option) => (
+                  <button
+                    key={option.value}
+                    onClick={() => setGridSize(option.value)}
+                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                      gridSize === option.value
+                        ? "bg-primary text-primary-foreground shadow-lg"
+                        : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
+                    }`}
+                  >
+                    {option.label}
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
 
@@ -115,7 +151,7 @@ const TopTracks = () => {
             </div>
           </div>
         ) : tracks.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          <div className={getGridClasses(gridSize)}>
             {tracks.map((track, index) => (
               <Card
                 key={track.id}

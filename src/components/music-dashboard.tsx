@@ -244,50 +244,52 @@ export function MusicDashboard({ backendUrl, withCredentials = true }: MusicDash
       : 0
 
   return (
-    <div className="min-h-screen bg-background p-6"> {/* Main background - uses CSS variable for theme support */}
+    <div className="min-h-screen bg-background p-3 sm:p-6">
       <div className="mx-auto max-w-7xl">
         {/* Header */}
-        <div className="mb-8 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Music className="h-8 w-8 text-primary" />
-            <h1 className="text-3xl font-bold text-balance">Music Dashboard</h1>
+        <div className="mb-4 sm:mb-8 flex items-center justify-between">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <Music className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
+            <h1 className="text-xl sm:text-3xl font-bold text-balance">Music Dashboard</h1>
           </div>
           <ThemeToggle />
         </div>
 
         {/* Main Grid Layout */}
-        <div className="grid grid-cols-12 gap-6 h-[calc(100vh-140px)]">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 lg:h-[calc(100vh-140px)]">
           {/* User Profile - Top Left */}
-          <Card className="col-span-4 row-span-1">
+          <Card className="lg:col-span-4 lg:row-span-1">
             <CardHeader className="pb-3">
-              <CardTitle className="text-lg">Profile</CardTitle>
+              <CardTitle className="text-base sm:text-lg">Profile</CardTitle>
             </CardHeader>
             <CardContent>
               {userData ? (
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-3 sm:gap-4">
                   {userData.images && userData.images.length > 0 && (
                     <img
                       src={userData.images[0].url || "/placeholder.svg"}
                       alt="User Avatar"
-                      className="h-16 w-16 rounded-full object-cover"
+                      className="h-12 w-12 sm:h-16 sm:w-16 rounded-full object-cover"
                     />
                   )}
-                  <div className="flex-1">
-                    <h3 className="font-semibold text-lg">{userData.display_name}</h3>
-                    <div className="flex items-center gap-2 mt-1">
-                      <Badge variant="secondary">{userData.product}</Badge>
-                      <span className="text-sm text-muted-foreground">
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold text-base sm:text-lg truncate">{userData.display_name}</h3>
+                    <div className="flex items-center gap-2 mt-1 flex-wrap">
+                      <Badge variant="secondary" className="text-xs">
+                        {userData.product}
+                      </Badge>
+                      <span className="text-xs sm:text-sm text-muted-foreground">
                         {getFlagEmoji(userData.country)} {userData.country}
                       </span>
                     </div>
                   </div>
                 </div>
               ) : (
-                <div className="flex items-center gap-4">
-                  <div className="h-16 w-16 rounded-full bg-muted animate-pulse" /> {/* Loading skeleton - muted background */}
+                <div className="flex items-center gap-3 sm:gap-4">
+                  <div className="h-12 w-12 sm:h-16 sm:w-16 rounded-full bg-muted animate-pulse" />
                   <div className="flex-1 space-y-2">
-                    <div className="h-4 bg-muted rounded animate-pulse" /> {/* Loading skeleton - muted background */}
-                    <div className="h-3 bg-muted rounded w-2/3 animate-pulse" /> {/* Loading skeleton - muted background */}
+                    <div className="h-4 bg-muted rounded animate-pulse" />
+                    <div className="h-3 bg-muted rounded w-2/3 animate-pulse" />
                   </div>
                 </div>
               )}
@@ -295,32 +297,34 @@ export function MusicDashboard({ backendUrl, withCredentials = true }: MusicDash
           </Card>
 
           {/* Currently Playing - Top Center & Right */}
-          <Card className="col-span-8 row-span-1">
+          <Card className="lg:col-span-8 lg:row-span-1">
             <CardHeader className="pb-3">
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <Music className="h-5 w-5" />
+              <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+                <Music className="h-4 w-4 sm:h-5 sm:w-5" />
                 Now Playing
               </CardTitle>
             </CardHeader>
             <CardContent>
               {playbackState && playbackState.item ? (
-                <div className="flex items-center gap-6">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6">
                   <img
                     src={playbackState.item.album.images[0]?.url || "/placeholder.svg"}
                     alt={playbackState.item.album.name}
-                    className="h-20 w-20 rounded-lg object-cover shadow-lg"
+                    className="h-16 w-16 sm:h-20 sm:w-20 rounded-lg object-cover shadow-lg"
                   />
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-xl truncate">{playbackState.item.name}</h3>
-                    <p className="text-muted-foreground truncate">
+                  <div className="flex-1 min-w-0 w-full">
+                    <h3 className="font-semibold text-lg sm:text-xl truncate">{playbackState.item.name}</h3>
+                    <p className="text-sm sm:text-base text-muted-foreground truncate">
                       {playbackState.item.artists.map((artist) => artist.name).join(", ")}
                     </p>
-                    <p className="text-sm text-muted-foreground truncate mt-1">{playbackState.item.album.name}</p>
+                    <p className="text-xs sm:text-sm text-muted-foreground truncate mt-1">
+                      {playbackState.item.album.name}
+                    </p>
 
                     {/* Progress Bar */}
                     {playbackState.progress_ms !== undefined && (
-                      <div className="mt-4 space-y-2">
-                        <Progress value={progressPercentage} className="h-2" />
+                      <div className="mt-3 sm:mt-4 space-y-2">
+                        <Progress value={progressPercentage} className="h-1.5 sm:h-2" />
                         <div className="flex justify-between text-xs text-muted-foreground">
                           <span>{formatTime(playbackState.progress_ms)}</span>
                           <span>{formatTime(playbackState.item.duration_ms)}</span>
@@ -330,71 +334,77 @@ export function MusicDashboard({ backendUrl, withCredentials = true }: MusicDash
                   </div>
 
                   {/* Playback Controls */}
-                  <div className="flex items-center gap-2">
-                    <Button variant="ghost" size="icon">
-                      <SkipBack className="h-4 w-4" />
+                  <div className="flex items-center gap-1 sm:gap-2 w-full sm:w-auto justify-center">
+                    <Button variant="ghost" size="icon" className="h-8 w-8 sm:h-10 sm:w-10">
+                      <SkipBack className="h-3 w-3 sm:h-4 sm:w-4" />
                     </Button>
-                    <Button variant="ghost" size="icon">
-                      {playbackState.is_playing ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
+                    <Button variant="ghost" size="icon" className="h-8 w-8 sm:h-10 sm:w-10">
+                      {playbackState.is_playing ? (
+                        <Pause className="h-4 w-4 sm:h-5 sm:w-5" />
+                      ) : (
+                        <Play className="h-4 w-4 sm:h-5 sm:w-5" />
+                      )}
                     </Button>
-                    <Button variant="ghost" size="icon">
-                      <SkipForward className="h-4 w-4" />
+                    <Button variant="ghost" size="icon" className="h-8 w-8 sm:h-10 sm:w-10">
+                      <SkipForward className="h-3 w-3 sm:h-4 sm:w-4" />
                     </Button>
-                    <Button variant="ghost" size="icon">
-                      <Volume2 className="h-4 w-4" />
+                    <Button variant="ghost" size="icon" className="h-8 w-8 sm:h-10 sm:w-10">
+                      <Volume2 className="h-3 w-3 sm:h-4 sm:w-4" />
                     </Button>
                   </div>
                 </div>
               ) : (
-                <div className="flex items-center justify-center h-20 text-muted-foreground">
-                  <Music className="h-8 w-8 mr-2" />
-                  No active playback
+                <div className="flex items-center justify-center h-16 sm:h-20 text-muted-foreground">
+                  <Music className="h-6 w-6 sm:h-8 sm:w-8 mr-2" />
+                  <span className="text-sm sm:text-base">No active playback</span>
                 </div>
               )}
             </CardContent>
           </Card>
 
           {/* Queue - Middle Left */}
-          <Card className="col-span-4 row-span-2">
+          <Card className="lg:col-span-4 lg:row-span-2">
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
-                <CardTitle className="flex items-center gap-2 text-lg">
-                  <List className="h-5 w-5" />
+                <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+                  <List className="h-4 w-4 sm:h-5 sm:w-5" />
                   Queue
                 </CardTitle>
-                <Button variant="ghost" size="sm" onClick={loadQueue}>
+                <Button variant="ghost" size="sm" onClick={loadQueue} className="text-xs sm:text-sm">
                   Refresh
                 </Button>
               </div>
             </CardHeader>
             <CardContent className="p-0">
-              <div className="max-h-[400px] overflow-y-auto custom-scrollbar px-6 pb-6">
+              <div className="max-h-[300px] sm:max-h-[400px] overflow-y-auto custom-scrollbar px-4 sm:px-6 pb-4 sm:pb-6">
                 {queue?.queue.length ? (
-                  <div className="space-y-3">
+                  <div className="space-y-2 sm:space-y-3">
                     {queue.queue.slice(0, 8).map((track, index) => (
                       <div
                         key={`${track.id}-${index}`}
-                        className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted/50 transition-colors" /* Hover background - semi-transparent muted color */
+                        className="flex items-center gap-2 sm:gap-3 p-2 rounded-lg hover:bg-muted/50 transition-colors"
                       >
                         <img
                           src={track.album.images[2]?.url || track.album.images[0]?.url}
                           alt={track.album.name}
-                          className="h-10 w-10 rounded object-cover"
+                          className="h-8 w-8 sm:h-10 sm:w-10 rounded object-cover flex-shrink-0"
                         />
                         <div className="flex-1 min-w-0">
-                          <p className="font-medium truncate text-sm">{track.name}</p>
+                          <p className="font-medium truncate text-xs sm:text-sm">{track.name}</p>
                           <p className="text-xs text-muted-foreground truncate">
                             {track.artists.map((artist) => artist.name).join(", ")}
                           </p>
                         </div>
-                        <span className="text-xs text-muted-foreground">{formatTime(track.duration_ms)}</span>
+                        <span className="text-xs text-muted-foreground flex-shrink-0">
+                          {formatTime(track.duration_ms)}
+                        </span>
                       </div>
                     ))}
                   </div>
                 ) : (
                   <div className="flex items-center justify-center h-32 text-muted-foreground">
-                    <List className="h-6 w-6 mr-2" />
-                    No tracks in queue
+                    <List className="h-5 w-5 sm:h-6 sm:w-6 mr-2" />
+                    <span className="text-sm">No tracks in queue</span>
                   </div>
                 )}
               </div>
@@ -402,34 +412,34 @@ export function MusicDashboard({ backendUrl, withCredentials = true }: MusicDash
           </Card>
 
           {/* Recently Played - Middle Center */}
-          <Card className="col-span-5 row-span-2">
+          <Card className="lg:col-span-5 lg:row-span-2">
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
-                <CardTitle className="flex items-center gap-2 text-lg">
-                  <Clock className="h-5 w-5" />
+                <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+                  <Clock className="h-4 w-4 sm:h-5 sm:w-5" />
                   Recently Played
                 </CardTitle>
-                <Button variant="ghost" size="sm" onClick={loadRecentlyPlayed}>
+                <Button variant="ghost" size="sm" onClick={loadRecentlyPlayed} className="text-xs sm:text-sm">
                   Refresh
                 </Button>
               </div>
             </CardHeader>
             <CardContent className="p-0">
-              <div className="max-h-[400px] overflow-y-auto custom-scrollbar px-6 pb-6">
+              <div className="max-h-[300px] sm:max-h-[400px] overflow-y-auto custom-scrollbar px-4 sm:px-6 pb-4 sm:pb-6">
                 {recentlyPlayed.length ? (
-                  <div className="space-y-3">
+                  <div className="space-y-2 sm:space-y-3">
                     {recentlyPlayed.map((item, index) => (
                       <div
                         key={`${item.track.id}-${index}`}
-                        className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted/50 transition-colors" /* Hover background - semi-transparent muted color */
+                        className="flex items-center gap-2 sm:gap-3 p-2 rounded-lg hover:bg-muted/50 transition-colors"
                       >
                         <img
                           src={item.track.album.images[2]?.url || item.track.album.images[0]?.url}
                           alt={item.track.album.name}
-                          className="h-10 w-10 rounded object-cover"
+                          className="h-8 w-8 sm:h-10 sm:w-10 rounded object-cover flex-shrink-0"
                         />
                         <div className="flex-1 min-w-0">
-                          <p className="font-medium truncate text-sm">{item.track.name}</p>
+                          <p className="font-medium truncate text-xs sm:text-sm">{item.track.name}</p>
                           <p className="text-xs text-muted-foreground truncate">
                             {item.track.artists.map((artist) => artist.name).join(", ")}
                           </p>
@@ -440,8 +450,8 @@ export function MusicDashboard({ backendUrl, withCredentials = true }: MusicDash
                   </div>
                 ) : (
                   <div className="flex items-center justify-center h-32 text-muted-foreground">
-                    <Clock className="h-6 w-6 mr-2" />
-                    No recent tracks
+                    <Clock className="h-5 w-5 sm:h-6 sm:w-6 mr-2" />
+                    <span className="text-sm">No recent tracks</span>
                   </div>
                 )}
               </div>
@@ -449,14 +459,14 @@ export function MusicDashboard({ backendUrl, withCredentials = true }: MusicDash
           </Card>
 
           {/* Friends - Middle Right */}
-          <Card className="col-span-3 row-span-2">
+          <Card className="lg:col-span-3 lg:row-span-2">
             <CardHeader className="pb-3">
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <Users className="h-5 w-5" />
+              <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+                <Users className="h-4 w-4 sm:h-5 sm:w-5" />
                 Friends ({friends.length})
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-3 sm:space-y-4">
               {/* Add Friend Form */}
               <div className="space-y-2">
                 <div className="flex gap-2">
@@ -466,9 +476,14 @@ export function MusicDashboard({ backendUrl, withCredentials = true }: MusicDash
                     onChange={(e) => setFriendUsername(e.target.value)}
                     onKeyPress={handleKeyPress}
                     disabled={loading}
-                    className="flex-1"
+                    className="flex-1 text-sm"
                   />
-                  <Button onClick={addFriend} disabled={loading} size="icon" className="shrink-0">
+                  <Button
+                    onClick={addFriend}
+                    disabled={loading}
+                    size="icon"
+                    className="shrink-0 h-9 w-9 sm:h-10 sm:w-10"
+                  >
                     <UserPlus className="h-4 w-4" />
                   </Button>
                 </div>
@@ -476,26 +491,26 @@ export function MusicDashboard({ backendUrl, withCredentials = true }: MusicDash
               </div>
 
               {/* Friends List */}
-              <div className="max-h-[300px] overflow-y-auto custom-scrollbar space-y-2">
+              <div className="max-h-[250px] sm:max-h-[300px] overflow-y-auto custom-scrollbar space-y-2">
                 {friends.length > 0 ? (
                   friends.map((friend) => (
                     <div
                       key={friend.id}
-                      className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted/50 transition-colors" /* Hover background - semi-transparent muted color */
+                      className="flex items-center gap-2 sm:gap-3 p-2 rounded-lg hover:bg-muted/50 transition-colors"
                     >
                       {friend.image ? (
                         <img
                           src={friend.image || "/placeholder.svg"}
                           alt={friend.username}
-                          className="h-8 w-8 rounded-full object-cover"
+                          className="h-7 w-7 sm:h-8 sm:w-8 rounded-full object-cover flex-shrink-0"
                         />
                       ) : (
-                        <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-xs font-medium"> {/* Friend avatar fallback - primary color with 10% opacity */}
+                        <div className="h-7 w-7 sm:h-8 sm:w-8 rounded-full bg-primary/10 flex items-center justify-center text-xs font-medium flex-shrink-0">
                           {friend.username[0].toUpperCase()}
                         </div>
                       )}
                       <div className="flex-1 min-w-0">
-                        <p className="font-medium truncate text-sm">{friend.username}</p>
+                        <p className="font-medium truncate text-xs sm:text-sm">{friend.username}</p>
                         {friend.last_login && (
                           <p className="text-xs text-muted-foreground">
                             {new Date(friend.last_login).toLocaleDateString()}
@@ -515,7 +530,7 @@ export function MusicDashboard({ backendUrl, withCredentials = true }: MusicDash
                 ) : (
                   <div className="flex items-center justify-center h-20 text-muted-foreground text-center">
                     <div>
-                      <Users className="h-6 w-6 mx-auto mb-2" />
+                      <Users className="h-5 w-5 sm:h-6 sm:w-6 mx-auto mb-2" />
                       <p className="text-xs">No friends yet</p>
                     </div>
                   </div>

@@ -4,7 +4,7 @@ import {Artist} from "@/components/models/Artist.js";
 import {SpotifyArtist} from "@/components/models/SpotifyData.js";
 
 const backendApiUrl = import.meta.env.VITE_BACKEND_URL;
-const serverBackendApiUrl = import.meta.env.SERVER_BACKEND_URL;
+const serverBackendApiUrl = import.meta.env.VITE_SERVER_BACKEND_URL || 'https://localhost:3001';
 interface Question {
     id: number;
     text: string;
