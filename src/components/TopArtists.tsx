@@ -37,11 +37,11 @@ const TopArtists = () => {
   ]
 
   const getGridClasses = (size: string) => {
-    const baseClasses = "grid gap-3 sm:gap-4"
+    const baseClasses = "grid gap-4"
     const columnClasses = {
-      large: "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5",
-      medium: "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6",
-      small: "grid-cols-2 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8"
+      large: "grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4",
+      medium: "grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 2xl:grid-cols-6",
+      small: "grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 2xl:grid-cols-8"
     }
     return `${baseClasses} ${columnClasses[size as keyof typeof columnClasses]}`
   }
@@ -152,42 +152,63 @@ const TopArtists = () => {
             {artists.map((artist, index) => (
               <Card
                 key={artist.id}
-                className="group cursor-pointer overflow-hidden transition-all hover:scale-105 hover:shadow-lg active:scale-95"
+                className="group cursor-pointer overflow-hidden transition-all duration-500 ease-in-out hover:shadow-xl hover:scale-105 hover:border-primary/50"
                 onClick={() => navigate(`/artist-details/${artist.id}`)}
               >
                 <CardContent className="p-0">
+                  {/* Artist Image */}
                   <div className="relative aspect-square overflow-hidden bg-muted">
                     {artist.images && artist.images.length > 0 ? (
-                      <img
-                        src={artist.images[0].url || "/placeholder.svg"}
-                        alt={artist.name}
-                        className="h-full w-full object-cover transition-transform group-hover:scale-110"
-                      />
+                      <>
+                        <img
+                          src={artist.images[0].url || "/placeholder.svg"}
+                          alt={artist.name}
+                          className="w-full h-full object-cover transition-transform duration-500 ease-in-out group-hover:scale-110"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 ease-in-out" />
+
+                        {/* Rank Badge */}
+                        <div className="absolute top-3 left-3">
+                          <Badge className="bg-primary text-primary-foreground font-bold text-lg px-3 py-1">
+                            #{index + 1}
+                          </Badge>
+                        </div>
+                      </>
                     ) : (
-                      <div className="flex h-full w-full items-center justify-center bg-muted">
-                        <span className="text-3xl sm:text-4xl font-bold text-muted-foreground">
-                          {artist.name.charAt(0)}
-                        </span>
+                      <div className="w-full h-full flex items-center justify-center">
+                        <svg
+                          className="w-16 h-16 text-muted-foreground"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth={2} />
+                          <text x="50%" y="52%" textAnchor="middle" alignmentBaseline="central" fontSize="10" fill="currentColor">{artist.name.charAt(0)}</text>
+                        </svg>
                       </div>
                     )}
-                    <div className="absolute top-2 left-2">
-                      <Badge variant="secondary" className="bg-background/80 backdrop-blur-sm text-xs">
-                        #{index + 1}
-                      </Badge>
-                    </div>
                   </div>
-                  <div className="space-y-1.5 sm:space-y-2 p-2.5 sm:p-3">
-                    <h3 className="font-semibold text-sm sm:text-base leading-tight line-clamp-1">{artist.name}</h3>
-                    {artist.genres && artist.genres.length > 0 && (
-                      <p className="text-xs text-muted-foreground line-clamp-1">
-                        {artist.genres.slice(0, 2).join(", ")}
-                      </p>
-                    )}
-                    <div className="flex items-center gap-1">
-                      <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-secondary">
-                        <div className="h-full bg-primary transition-all" style={{ width: `${artist.popularity}%` }} />
+
+                  {/* Artist Info */}
+                  <div className="p-4 space-y-3">
+                    <div>
+                      <h3 className="font-semibold text-foreground line-clamp-1 group-hover:text-primary transition-colors duration-500 ease-in-out">
+                        {artist.name}
+                      </h3>
+                    </div>
+
+                    {/* Popularity Meter */}
+                    <div className="space-y-1">
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="text-muted-foreground">Popularity</span>
+                        <span className="font-medium text-foreground">{artist.popularity}%</span>
                       </div>
-                      <span className="text-xs text-muted-foreground">{artist.popularity}%</span>
+                      <div className="h-1.5 bg-secondary rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-gradient-to-r from-primary to-primary/70 rounded-full transition-all"
+                          style={{ width: `${artist.popularity}%` }}
+                        />
+                      </div>
                     </div>
                   </div>
                 </CardContent>

@@ -11,6 +11,10 @@
     "dev:backend-socket": "tsx src/lib/server/server.ts",
     "db:check": "tsx src/scripts/check-database.ts",
     "build": "tsc -b && vite build",
+    "build:prod": "tsc -b && vite build --config vite.config.prod.ts",
+    "build:backend": "tsc -b",
+    "start:backend-auth": "node --loader tsx src/lib/auth/authorize.ts",
+    "start:backend-socket": "node --loader tsx src/lib/server/server.ts",
     "lint": "eslint .",
     "preview": "vite preview"
   },
