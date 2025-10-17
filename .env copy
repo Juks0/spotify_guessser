@@ -1,0 +1,25 @@
+# Supabase Configuration (REQUIRED)
+SUPABASE_URL=https://hmcolvrnxdzruhzdszch.supabase.co
+SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhtY29sdnJueGR6cnVoemRzemNoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkzMjg0MjMsImV4cCI6MjA3NDkwNDQyM30.lKzUyk6t0IK-x0jxmqaSw7Jfy-RQojsBwjItD5cO_wc
+SUPABASE_SERVICE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhtY29sdnJueGR6cnVoemRzemNoIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1OTMyODQyMywiZXhwIjoyMDc0OTA0NDIzfQ.T2v3OJg4_hs-c_YvCDw9peWcTDyVa3oTpjDVxUmvAPg
+
+# Spotify Configuration
+SPOTIFY_CLIENT_ID=560440ae985b45a8b13e61974617bd05
+SPOTIFY_CLIENT_SECRET=7f262b78be8148c194110fad34f96616
+
+# Frontend Variables (with VITE_ prefix for client-side access)
+VITE_SUPABASE_URL=https://hmcolvrnxdzruhzdszch.supabase.co
+VITE_SPOTIFY_CLIENT_ID=560440ae985b45a8b13e61974617bd05
+VITE_SPOTIFY_CLIENT_SECRET=7f262b78be8148c194110fad34f96616
+VITE_FRONTEND_URL="https://192.168.0.93:5173"
+VITE_BACKEND_URL="https://192.168.0.93:8888"
+
+# Database Configuration
+DATABASE_URL=postgresql://postgres.hmcolvrnxdzruhzdszch:baxsoq-fimxi7-kyvnoB@aws-1-eu-central-1.pooler.supabase.com:6543/postgres
+
+# Server Configuration
+NODE_ENV=development
+AUTH_PORT=8888
+FRONTEND_URL="https://192.168.0.93:5173"
+BACKEND_URL="https://192.168.0.93:8888"
+SERVER_BACKEND_URL="https://192.168.0.93:8888"

@@ -102,39 +102,49 @@ Projekt składa się z trzech głównych komponentów:
 
 ---
 
-## 📁 Struktura Projektu
+## 📁 Struktura Projektu (Monorepo)
 
 ```
 spotify_guessser/
-├── 📂 src/
-│   ├── 📂 components/          # Komponenty React
-│   │   ├── 📂 ui/              # Komponenty UI (shadcn)
-│   │   ├── ArtistDetails.tsx   # Szczegóły artysty
-│   │   ├── TopArtists.tsx      # Lista top artystów
-│   │   ├── TopTracks.tsx       # Lista top utworów
-│   │   ├── QuizGame.tsx        # Gra quizowa
-│   │   └── ...
-│   ├── 📂 lib/
-│   │   ├── 📂 auth/            # Logika autoryzacji Spotify
-│   │   │   └── authorize.ts    # Express auth server
+├── 📂 frontend/                # 🎨 React Application
+│   ├── 📂 src/
+│   │   ├── 📂 components/      # Komponenty React
+│   │   │   ├── 📂 ui/          # shadcn/ui components
+│   │   │   ├── TopArtists.tsx
+│   │   │   ├── TopTracks.tsx
+│   │   │   ├── QuizGame.tsx
+│   │   │   └── ...
+│   │   ├── 📂 contexts/        # React Contexts
+│   │   ├── 📂 assets/          # Static assets
+│   │   ├── App.tsx             # Main component
+│   │   └── main.tsx            # Entry point
+│   ├── 📂 public/              # Static files
+│   ├── vite.config.ts          # Vite config
+│   ├── package.json            # Frontend dependencies
+│   └── README.md               # Frontend docs
+│
+├── 📂 backend/                 # 🔧 Node.js Servers
+│   ├── 📂 src/
+│   │   ├── 📂 auth/            # Spotify OAuth server
+│   │   │   └── authorize.ts
 │   │   ├── 📂 server/          # Socket.IO server
-│   │   │   └── server.ts       # Multiplayer game logic
-│   │   ├── 📂 database/        # Warstwa bazy danych
-│   │   │   ├── supabase.ts     # Klient Supabase
-│   │   │   └── services.ts     # Serwisy DB
-│   │   ├── 📂 routers/         # Express routes
-│   │   └── 📂 config/          # Konfiguracja
-│   ├── 📂 contexts/            # React Contexts
-│   │   └── AuthContext.tsx     # Kontekst autoryzacji
-│   ├── App.tsx                 # Główny komponent
-│   └── main.tsx                # Entry point
-├── 📂 public/                  # Pliki statyczne
-├── vite.config.ts              # Konfiguracja Vite (dev)
-├── vite.config.prod.ts         # Konfiguracja Vite (prod)
-├── tailwind.config.js          # Konfiguracja Tailwind
-├── tsconfig.json               # Konfiguracja TypeScript
-└── package.json                # Zależności projektu
+│   │   │   └── server.ts
+│   │   ├── 📂 database/        # Supabase client
+│   │   │   ├── supabase.ts
+│   │   │   └── services.ts
+│   │   ├── 📂 routers/         # API routes
+│   │   ├── 📂 config/          # Configuration
+│   │   └── 📂 scripts/         # Utility scripts
+│   ├── package.json            # Backend dependencies
+│   └── README.md               # Backend docs
+│
+├── 📄 .env                     # Environment variables (shared)
+├── 📄 package.json             # Workspace root
+├── 📄 README.md                # This file
+└── 📄 MIGRATION_GUIDE.md       # Migration instructions
 ```
+
+> **💡 Projekt jest zorganizowany jako monorepo** z oddzielnymi folderami dla frontendu i backendu, co ułatwia development i deployment.
 
 ---
 
@@ -155,8 +165,12 @@ cd spotify_guessser
 
 ### Krok 2: Instalacja zależności
 ```bash
-# Zainstaluj wszystkie pakiety
+# Zainstaluj wszystkie pakiety (root + frontend + backend)
 npm install
+
+# Lub osobno:
+cd frontend && npm install
+cd ../backend && npm install
 ```
 
 ### Krok 3: Generowanie certyfikatów SSL (tylko dla development)
@@ -234,10 +248,10 @@ AUTH_PORT=8888
 
 ## 🎬 Uruchomienie
 
-### Development Mode (wszystkie serwery naraz)
+### Development Mode - Z głównego katalogu (Monorepo)
 
 ```bash
-# Uruchamia frontend, backend auth, socket server i sprawdza DB
+# Uruchamia frontend + backend razem
 npm run dev
 ```
 
@@ -250,20 +264,15 @@ To uruchomi:
 ### Uruchamianie osobno
 
 ```bash
-# Tylko frontend
-npm run dev:frontend
+# Z root directory:
+npm run dev:frontend   # Tylko frontend
+npm run dev:backend    # Tylko backend (auth + socket + db check)
 
-# Tylko backend (auth + socket)
-npm run dev:backend
-
-# Tylko auth server
-npm run dev:backend-auth
-
-# Tylko socket server
-npm run dev:backend-socket
-
-# Sprawdzenie połączenia z bazą danych
-npm run db:check
+# Lub wejdź do konkretnego folderu:
+cd frontend && npm run dev      # Vite dev server
+cd backend && npm run dev       # Wszystkie backend serwery
+cd backend && npm run dev:auth  # Tylko auth server
+cd backend && npm run dev:socket # Tylko socket server
 ```
 
 ### Akceptowanie SSL Certyfikatów
@@ -280,14 +289,17 @@ Po pierwszym uruchomieniu odwiedź w przeglądarce i zaakceptuj self-signed cert
 ### Build dla Produkcji
 
 ```bash
-# Build frontend (bez SSL config)
-npm run build:prod
+# Build frontend + backend (z root)
+npm run build
 
-# Build backend
-npm run build:backend
+# Lub osobno:
+npm run build:frontend  # Build frontend (production config)
+npm run build:backend   # Compile backend TypeScript
+
+# Lub wejdź do folderu:
+cd frontend && npm run build:prod  # -> frontend/dist/
+cd backend && npm run build        # -> backend/dist/
 ```
-
-To wygeneruje folder `dist/` z zoptymalizowanym kodem frontend.
 
 ### Deployment Options
 
@@ -365,16 +377,35 @@ kill -9 <PID>
 
 ## 📝 Skrypty NPM
 
+### Root Directory (Workspace)
+
 | Komenda | Opis |
 |---------|------|
-| `npm run dev` | Uruchom wszystkie serwery (dev) |
+| `npm run dev` | Uruchom frontend + backend razem |
 | `npm run dev:frontend` | Tylko frontend |
-| `npm run dev:backend` | Tylko backend (auth + socket) |
-| `npm run build` | Build frontend (dev config) |
-| `npm run build:prod` | Build frontend (prod config) |
-| `npm run build:backend` | Kompiluj TypeScript backend |
-| `npm run lint` | Sprawdź kod (ESLint) |
-| `npm run db:check` | Sprawdź połączenie z DB |
+| `npm run dev:backend` | Tylko backend (wszystko) |
+| `npm run build` | Build frontend + backend |
+| `npm run build:frontend` | Build tylko frontend |
+| `npm run build:backend` | Build tylko backend |
+
+### Frontend (`cd frontend/`)
+
+| Komenda | Opis |
+|---------|------|
+| `npm run dev` | Vite dev server (5173) |
+| `npm run build:prod` | Production build |
+| `npm run preview` | Preview build |
+| `npm run lint` | ESLint check |
+
+### Backend (`cd backend/`)
+
+| Komenda | Opis |
+|---------|------|
+| `npm run dev` | Auth + Socket + DB check |
+| `npm run dev:auth` | Tylko auth (8888) |
+| `npm run dev:socket` | Tylko socket (3001) |
+| `npm run db:check` | Check database |
+| `npm run build` | Compile TypeScript |
 
 ---
 
