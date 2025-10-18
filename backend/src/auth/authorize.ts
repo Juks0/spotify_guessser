@@ -27,10 +27,10 @@ import playbackRoute from "@/routers/playbackRoute";
 import friendsRoute from "@/routers/friendsRoute";
 import tokenRoute from "@/routers/tokenRoute";
 
-const client_id = process.env.SPOTIFY_CLIENT_ID || '560440ae985b45a8b13e61974617bd05';
-const client_secret = process.env.SPOTIFY_CLIENT_SECRET || '7f262b78be8148c194110fad34f96616';
-const backendApiUrl = process.env.BACKEND_URL || 'https://192.168.0.93:8888';
-const frontend_uri = process.env.FRONTEND_URL || 'https://192.168.0.93:5173';
+const client_id = process.env.SPOTIFY_CLIENT_ID;
+const client_secret = process.env.SPOTIFY_CLIENT_SECRET;
+const backendApiUrl = process.env.BACKEND_URL;
+const frontend_uri = process.env.FRONTEND_URL;
 const redirect_uri = backendApiUrl + '/callback';
 const stateKey = 'spotify_auth_state';
 

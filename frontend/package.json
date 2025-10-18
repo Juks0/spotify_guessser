@@ -7,6 +7,7 @@
     "dev": "vite --host",
     "build": "tsc -b && vite build",
     "build:prod": "tsc -b && vite build --config vite.config.prod.ts",
+    "start": "vite preview --host",
     "preview": "vite preview",
     "lint": "eslint ."
   },

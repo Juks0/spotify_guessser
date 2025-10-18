@@ -9,6 +9,7 @@
     "dev:socket": "tsx src/server/server.ts",
     "db:check": "tsx src/scripts/check-database.ts",
     "build": "tsc -b",
+    "start": "concurrently \"npm:start:auth\" \"npm:start:socket\"",
     "start:auth": "node --loader tsx src/auth/authorize.ts",
     "start:socket": "node --loader tsx src/server/server.ts"
   },

@@ -1,6 +1,6 @@
 # 🎵 Spotify Guesser
 
-> Aplikacja webowa do analizy Twoich preferencji muzycznych i zabawy z quizami muzycznymi opartymi o Twoje dane ze Spotify!
+> A web application for analyzing your music preferences and playing music quizzes based on your Spotify data!
 
 ![React](https://img.shields.io/badge/React-18.3-blue.svg)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.8-blue.svg)
@@ -9,59 +9,59 @@
 
 ---
 
-## 📋 Spis Treści
+## 📋 Table of Contents
 
-- [O Projekcie](#-o-projekcie)
-- [Funkcjonalności](#-funkcjonalności)
+- [About](#-about)
+- [Features](#-features)
 - [Tech Stack](#-tech-stack)
-- [Struktura Projektu](#-struktura-projektu)
-- [Instalacja](#-instalacja)
-- [Konfiguracja](#-konfiguracja)
-- [Uruchomienie](#-uruchomienie)
+- [Project Structure](#-project-structure)
+- [Installation](#-installation)
+- [Configuration](#-configuration)
+- [Running](#-running)
 - [Deployment](#-deployment)
-- [Licencja](#-licencja)
+- [License](#-license)
 
 ---
 
-## 🎯 O Projekcie
+## 🎯 About
 
-**Spotify Guesser** to kompleksowa aplikacja która łączy się z Twoim kontem Spotify, aby:
-- 📊 Analizować Twoje nawyki muzyczne
-- 🎤 Wyświetlać Twoich ulubionych artystów
-- 🎵 Pokazywać najpopularniejsze utwory
-- 🎮 Organizować quizy muzyczne z przyjaciółmi w czasie rzeczywistym
+**Spotify Guesser** is a comprehensive application that connects to your Spotify account to:
+- 📊 Analyze your music listening habits
+- 🎤 Display your favorite artists
+- 🎵 Show your most popular tracks
+- 🎮 Organize real-time music quizzes with friends
 
-Projekt składa się z trzech głównych komponentów:
-1. **Frontend** - Nowoczesny interfejs użytkownika (React + Vite)
-2. **Backend Auth** - Serwer autoryzacji Spotify (Express)
-3. **Socket Server** - Serwer gier multiplayer (Socket.IO)
+The project consists of three main components:
+1. **Frontend** - Modern user interface (React + Vite)
+2. **Backend Auth** - Spotify authorization server (Express)
+3. **Socket Server** - Multiplayer game server (Socket.IO)
 
 ---
 
-## ✨ Funkcjonalności
+## ✨ Features
 
-### 🔐 Autoryzacja
-- Bezpieczne logowanie przez Spotify OAuth 2.0
-- Automatyczne odświeżanie tokenów
-- Zarządzanie sesją użytkownika
+### 🔐 Authorization
+- Secure login via Spotify OAuth 2.0
+- Automatic token refresh
+- User session management
 
-### 📊 Dashboard Muzyczny
-- **Top Artists** - Twoi ulubieni artyści (krótki, średni i długi termin)
-- **Top Tracks** - Najpopularniejsze utwory
-- **Szczegółowe Analizy** - Informacje o artystach i utworach
-- **Wizualizacje** - Piękne wykresy i statystyki
+### 📊 Music Dashboard
+- **Top Artists** - Your favorite artists (short, medium, and long term)
+- **Top Tracks** - Most popular tracks
+- **Detailed Analytics** - Artist and track information
+- **Visualizations** - Beautiful charts and statistics
 
 ### 🎮 Quiz Game
-- Gry multiplayer w czasie rzeczywistym
-- Pytania generowane na podstawie Twoich danych
-- System punktacji
-- Pokoje gier dla przyjaciół
+- Real-time multiplayer games
+- Questions generated based on your data
+- Scoring system
+- Game rooms for friends
 
 ### 🎨 UI/UX
 - Dark/Light mode
-- Responsywny design
-- Animacje i przejścia
-- Komponenty UI od shadcn/ui
+- Responsive design
+- Animations and transitions
+- UI components from shadcn/ui
 
 ---
 
@@ -96,19 +96,19 @@ Projekt składa się z trzech głównych komponentów:
 
 ### DevOps & Tools
 - **TSX** - TypeScript execution
-- **Concurrently** - Równoległe uruchamianie skryptów
-- **ESLint** - Linting kodu
-- **Dotenv** - Zarządzanie zmiennymi środowiskowymi
+- **Concurrently** - Parallel script execution
+- **ESLint** - Code linting
+- **Dotenv** - Environment variable management
 
 ---
 
-## 📁 Struktura Projektu (Monorepo)
+## 📁 Project Structure (Monorepo)
 
 ```
 spotify_guessser/
 ├── 📂 frontend/                # 🎨 React Application
 │   ├── 📂 src/
-│   │   ├── 📂 components/      # Komponenty React
+│   │   ├── 📂 components/      # React components
 │   │   │   ├── 📂 ui/          # shadcn/ui components
 │   │   │   ├── TopArtists.tsx
 │   │   │   ├── TopTracks.tsx
@@ -144,67 +144,67 @@ spotify_guessser/
 └── 📄 MIGRATION_GUIDE.md       # Migration instructions
 ```
 
-> **💡 Projekt jest zorganizowany jako monorepo** z oddzielnymi folderami dla frontendu i backendu, co ułatwia development i deployment.
+> **💡 The project is organized as a monorepo** with separate folders for frontend and backend, making development and deployment easier.
 
 ---
 
-## 🚀 Instalacja
+## 🚀 Installation
 
-### Wymagania
+### Requirements
 - **Node.js** >= 24.0.0
-- **npm** lub **yarn**
-- **Konto Spotify Developer** (dla API keys)
-- **Konto Supabase** (dla bazy danych)
+- **npm** or **yarn**
+- **Spotify Developer Account** (for API keys)
+- **Supabase Account** (for database)
 
-### Krok 1: Klonowanie repozytorium
+### Step 1: Clone repository
 ```bash
-# Klonuj projekt
+# Clone project
 git clone <repository-url>
 cd spotify_guessser
 ```
 
-### Krok 2: Instalacja zależności
+### Step 2: Install dependencies
 ```bash
-# Zainstaluj wszystkie pakiety (root + frontend + backend)
+# Install all packages (root + frontend + backend)
 npm install
 
-# Lub osobno:
+# Or separately:
 cd frontend && npm install
 cd ../backend && npm install
 ```
 
-### Krok 3: Generowanie certyfikatów SSL (tylko dla development)
+### Step 3: Generate SSL certificates (development only)
 ```bash
-# Wygeneruj self-signed SSL certificate dla lokalnego HTTPS
-openssl req -x509 -newkey rsa:4096 -keyout private.key -out certificate.crt -days 365 -nodes -subj "/CN=192.168.0.93" -addext "subjectAltName=IP:192.168.0.93,DNS:localhost"
+# Generate self-signed SSL certificate for local HTTPS
+openssl req -x509 -newkey rsa:4096 -keyout private.key -out certificate.crt -days 365 -nodes -subj "/CN={local ip}" -addext "subjectAltName=IP:{local ip},DNS:localhost"
 ```
 
-> **Uwaga:** Zamień `192.168.0.93` na swój lokalny adres IP
+> **Note:** Replace `{local ip}` with your local IP address
 
 ---
 
-## ⚙️ Konfiguracja
+## ⚙️ Configuration
 
-### Krok 1: Spotify Developer App
+### Step 1: Spotify Developer App
 
-1. Wejdź na [Spotify Developer Dashboard](https://developer.spotify.com/dashboard)
-2. Utwórz nową aplikację
-3. Dodaj Redirect URIs:
+1. Go to [Spotify Developer Dashboard](https://developer.spotify.com/dashboard)
+2. Create a new application
+3. Add Redirect URIs:
    ```
    https://localhost:8888/callback
-   https://192.168.0.93:8888/callback
+   https://{local ip}:8888/callback
    ```
-4. Skopiuj **Client ID** i **Client Secret**
+4. Copy **Client ID** and **Client Secret**
 
-### Krok 2: Supabase Setup
+### Step 2: Supabase Setup
 
-1. Utwórz projekt na [Supabase](https://supabase.com)
-2. Skopiuj URL projektu i API keys
-3. Uruchom SQL queries z pliku `database inster query` aby stworzyć tabele
+1. Create a project on [Supabase](https://supabase.com)
+2. Copy project URL and API keys
+3. Run SQL queries from `database inster query` file to create tables
 
-### Krok 3: Plik .env
+### Step 3: .env File
 
-Utwórz plik `.env` w głównym katalogu:
+Create a `.env` file in the main directory:
 
 ```bash
 # ============================================
@@ -225,15 +225,15 @@ VITE_SUPABASE_URL=https://your-project.supabase.co
 DATABASE_URL=postgresql://postgres:[PASSWORD]@db.[PROJECT].supabase.co:5432/postgres
 
 # ============================================
-# 🌐 DEVELOPMENT URLS (localhost lub local IP)
+# 🌐 DEVELOPMENT URLS (localhost or local IP)
 # ============================================
-VITE_FRONTEND_URL=https://192.168.0.93:5173
-VITE_BACKEND_URL=https://192.168.0.93:8888
-VITE_SERVER_BACKEND_URL=https://192.168.0.93:3001
+VITE_FRONTEND_URL=https://{local ip}:5173
+VITE_BACKEND_URL=https://{local ip}:8888
+VITE_SERVER_BACKEND_URL=https://{local ip}:3001
 
-FRONTEND_URL=https://192.168.0.93:5173
-BACKEND_URL=https://192.168.0.93:8888
-SERVER_BACKEND_URL=https://192.168.0.93:3001
+FRONTEND_URL=https://{local ip}:5173
+BACKEND_URL=https://{local ip}:8888
+SERVER_BACKEND_URL=https://{local ip}:3001
 
 # ============================================
 # ⚙️ OTHER SETTINGS
@@ -242,90 +242,90 @@ NODE_ENV=development
 AUTH_PORT=8888
 ```
 
-> **💡 Tip:** Zamień `192.168.0.93` na swój lokalny adres IP (sprawdź przez `ipconfig` lub `ifconfig`)
+> **💡 Tip:** Replace `{local ip}` with your local IP address (check with `ipconfig` or `ifconfig`)
 
 ---
 
-## 🎬 Uruchomienie
+## 🎬 Running
 
-### Development Mode - Z głównego katalogu (Monorepo)
+### Development Mode - From root directory (Monorepo)
 
 ```bash
-# Uruchamia frontend + backend razem
+# Run frontend + backend together
 npm run dev
 ```
 
-To uruchomi:
-- ✅ Frontend na `https://192.168.0.93:5173`
-- ✅ Backend Auth na `https://192.168.0.93:8888`
-- ✅ Socket Server na `https://192.168.0.93:3001`
+This will start:
+- ✅ Frontend at `https://{local ip}:5173`
+- ✅ Backend Auth at `https://{local ip}:8888`
+- ✅ Socket Server at `https://{local ip}:3001`
 - ✅ Database check script
 
-### Uruchamianie osobno
+### Running separately
 
 ```bash
-# Z root directory:
-npm run dev:frontend   # Tylko frontend
-npm run dev:backend    # Tylko backend (auth + socket + db check)
+# From root directory:
+npm run dev:frontend   # Frontend only
+npm run dev:backend    # Backend only (auth + socket + db check)
 
-# Lub wejdź do konkretnego folderu:
+# Or enter specific folder:
 cd frontend && npm run dev      # Vite dev server
-cd backend && npm run dev       # Wszystkie backend serwery
-cd backend && npm run dev:auth  # Tylko auth server
-cd backend && npm run dev:socket # Tylko socket server
+cd backend && npm run dev       # All backend servers
+cd backend && npm run dev:auth  # Auth server only
+cd backend && npm run dev:socket # Socket server only
 ```
 
-### Akceptowanie SSL Certyfikatów
+### Accepting SSL Certificates
 
-Po pierwszym uruchomieniu odwiedź w przeglądarce i zaakceptuj self-signed certyfikaty:
-1. `https://192.168.0.93:5173` (Frontend)
-2. `https://192.168.0.93:8888` (Backend Auth)
-3. `https://192.168.0.93:3001` (Socket Server)
+After first run, visit in browser and accept self-signed certificates:
+1. `https://{local ip}:5173` (Frontend)
+2. `https://{local ip}:8888` (Backend Auth)
+3. `https://{local ip}:3001` (Socket Server)
 
 ---
 
 ## 📦 Deployment
 
-### Build dla Produkcji
+### Production Build
 
 ```bash
-# Build frontend + backend (z root)
+# Build frontend + backend (from root)
 npm run build
 
-# Lub osobno:
+# Or separately:
 npm run build:frontend  # Build frontend (production config)
 npm run build:backend   # Compile backend TypeScript
 
-# Lub wejdź do folderu:
+# Or enter folder:
 cd frontend && npm run build:prod  # -> frontend/dist/
 cd backend && npm run build        # -> backend/dist/
 ```
 
 ### Deployment Options
 
-#### Option 1: Frontend na FTP/Static Hosting
-1. Uruchom `npm run build:prod`
-2. Upload zawartości folderu `dist/` na serwer FTP
-3. Backend musi być hostowany osobno (np. VPS, Heroku, Railway)
+#### Option 1: Frontend on FTP/Static Hosting
+1. Run `npm run build:prod`
+2. Upload `dist/` folder contents to FTP server
+3. Backend must be hosted separately (e.g., VPS, Heroku, Railway)
 
 #### Option 2: Full Stack Deployment
-Potrzebujesz hostingu z Node.js:
+Requires Node.js hosting:
 - **Vercel** / **Netlify** - Frontend
 - **Railway** / **Render** / **Heroku** - Backend
-- **Supabase** - Database (już w chmurze)
+- **Supabase** - Database (already in cloud)
 
-#### Option 3: VPS (pełna kontrola)
-Deploy całej aplikacji na VPS (np. DigitalOcean, AWS EC2):
-1. Zainstaluj Node.js na serwerze
-2. Sklonuj repo
-3. Zainstaluj zależności
-4. Setup NGINX jako reverse proxy
-5. Użyj PM2 do zarządzania procesami
-6. Certyfikaty SSL z Let's Encrypt
+#### Option 3: VPS (full control)
+Deploy entire app on VPS (e.g., DigitalOcean, AWS EC2):
+1. Install Node.js on server
+2. Clone repo
+3. Install dependencies
+4. Setup NGINX as reverse proxy
+5. Use PM2 for process management
+6. SSL certificates from Let's Encrypt
 
-### Zmienne Środowiskowe dla Produkcji
+### Environment Variables for Production
 
-W produkcji zmień wszystkie URL na swoje domeny:
+In production, change all URLs to your domains:
 ```bash
 VITE_FRONTEND_URL=https://yourdomain.com
 VITE_BACKEND_URL=https://api.yourdomain.com
@@ -334,64 +334,64 @@ NODE_ENV=production
 
 ---
 
-## 🔒 Bezpieczeństwo
+## 🔒 Security
 
 ### Development
 - ✅ Self-signed SSL certificates
-- ✅ CORS włączone dla localhost
+- ✅ CORS enabled for localhost
 - ✅ Cookies: `sameSite: 'lax'`
 
 ### Production
-- ✅ Prawdziwe SSL certificates (Let's Encrypt)
-- ✅ CORS ograniczony do twojej domeny
+- ✅ Real SSL certificates (Let's Encrypt)
+- ✅ CORS restricted to your domain
 - ✅ Cookies: `httpOnly: true, secure: true, sameSite: 'strict'`
-- ✅ Zmienne środowiskowe w `.env` (nie commituj do git!)
-- ✅ Rate limiting na endpointach API
+- ✅ Environment variables in `.env` (don't commit to git!)
+- ✅ Rate limiting on API endpoints
 
 ---
 
 ## 🐛 Troubleshooting
 
-### Problem: "Certificate error" w przeglądarce
-**Rozwiązanie:** Odwiedź każdy port (5173, 8888, 3001) i zaakceptuj certyfikat
+### Problem: "Certificate error" in browser
+**Solution:** Visit each port (5173, 8888, 3001) and accept the certificate
 
 ### Problem: "Failed to connect to database"
-**Rozwiązanie:** Sprawdź `DATABASE_URL` w `.env` i upewnij się że Supabase projekt działa
+**Solution:** Check `DATABASE_URL` in `.env` and ensure Supabase project is running
 
 ### Problem: "CORS error"
-**Rozwiązanie:** Upewnij się że `FRONTEND_URL` i `BACKEND_URL` są prawidłowe
+**Solution:** Ensure `FRONTEND_URL` and `BACKEND_URL` are correct
 
-### Problem: Porty zajęte
-**Rozwiązanie:** 
+### Problem: Ports in use
+**Solution:** 
 ```bash
-# Znajdź procesy na portach
+# Find processes on ports
 lsof -i :5173
 lsof -i :8888
 lsof -i :3001
 
-# Zabij proces
+# Kill process
 kill -9 <PID>
 ```
 
 ---
 
-## 📝 Skrypty NPM
+## 📝 NPM Scripts
 
 ### Root Directory (Workspace)
 
-| Komenda | Opis |
-|---------|------|
-| `npm run dev` | Uruchom frontend + backend razem |
-| `npm run dev:frontend` | Tylko frontend |
-| `npm run dev:backend` | Tylko backend (wszystko) |
+| Command | Description |
+|---------|-------------|
+| `npm run dev` | Run frontend + backend together |
+| `npm run dev:frontend` | Frontend only |
+| `npm run dev:backend` | Backend only (all) |
 | `npm run build` | Build frontend + backend |
-| `npm run build:frontend` | Build tylko frontend |
-| `npm run build:backend` | Build tylko backend |
+| `npm run build:frontend` | Build frontend only |
+| `npm run build:backend` | Build backend only |
 
 ### Frontend (`cd frontend/`)
 
-| Komenda | Opis |
-|---------|------|
+| Command | Description |
+|---------|-------------|
 | `npm run dev` | Vite dev server (5173) |
 | `npm run build:prod` | Production build |
 | `npm run preview` | Preview build |
@@ -399,11 +399,11 @@ kill -9 <PID>
 
 ### Backend (`cd backend/`)
 
-| Komenda | Opis |
-|---------|------|
+| Command | Description |
+|---------|-------------|
 | `npm run dev` | Auth + Socket + DB check |
-| `npm run dev:auth` | Tylko auth (8888) |
-| `npm run dev:socket` | Tylko socket (3001) |
+| `npm run dev:auth` | Auth only (8888) |
+| `npm run dev:socket` | Socket only (3001) |
 | `npm run db:check` | Check database |
 | `npm run build` | Compile TypeScript |
 
@@ -411,23 +411,23 @@ kill -9 <PID>
 
 ## 🤝 Contributing
 
-Pull requesty są mile widziane! Dla większych zmian, najpierw otwórz issue aby przedyskutować co chcesz zmienić.
+Pull requests are welcome! For major changes, please open an issue first to discuss what you would like to change.
 
 ---
 
-## 📄 Licencja
+## 📄 License
 
-MIT License - możesz robić z tym projektem co chcesz!
-
----
-
-## 👨‍💻 Autor
-
-Stworzony z ❤️ przez Kacpra
+MIT License - you can do whatever you want with this project!
 
 ---
 
-## 🙏 Podziękowania
+## 👨‍💻 Author
+
+Created with ❤️ by Kacper Mazur
+
+---
+
+## 🙏 Acknowledgments
 
 - [Spotify Web API](https://developer.spotify.com/documentation/web-api)
 - [Supabase](https://supabase.com)
@@ -439,8 +439,26 @@ Stworzony z ❤️ przez Kacpra
 
 ### 📱 Screenshots
 
-_// TODO: Dodaj screenshoty aplikacji_
+#### Dashboard / Me Page
+![Dashboard](img/me.png)
+*Your personalized music dashboard with listening statistics and insights*
+
+#### Top Artists
+![Top Artists](img/top-artists.png)
+*View your most listened to artists across different time periods*
+
+#### Top Tracks
+![Top Tracks](img/top-tracks.png)
+*Discover your favorite songs and tracks*
+
+#### Artist Details
+![Artist Details](img/artist.png)
+*Detailed information about your favorite artists*
+
+#### Track Details
+![Track Details](img/track.png)
+*In-depth track information and audio features*
 
 ---
 
-**Miłej zabawy z analizą swojej muzyki! 🎵✨**
+**Enjoy analyzing your music! 🎵✨**

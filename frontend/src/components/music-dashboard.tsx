@@ -102,7 +102,7 @@ export function MusicDashboard({ backendUrl, withCredentials = true }: MusicDash
     // Poll playback state every 5 seconds
     const interval = setInterval(() => {
       loadCurrentPlayback()
-    }, 5000)
+    }, 500)
 
     return () => clearInterval(interval)
   }, [])

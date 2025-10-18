@@ -1,6 +1,6 @@
 # 🔧 Spotify Guesser - Backend
 
-Node.js backend aplikacji Spotify Guesser z Express, Socket.IO i Supabase.
+Node.js backend for Spotify Guesser application with Express, Socket.IO, and Supabase.
 
 ## 🛠 Tech Stack
 
@@ -20,10 +20,10 @@ npm install
 ## 🚀 Development
 
 ```bash
-# Start wszystkie serwery (auth + socket + db check)
+# Start all servers (auth + socket + db check)
 npm run dev
 
-# Lub osobno:
+# Or separately:
 npm run dev:auth      # Auth server (port 8888)
 npm run dev:socket    # Socket server (port 3001)
 npm run db:check      # Database connection check
@@ -66,7 +66,7 @@ backend/
 
 ### Environment Variables
 
-Utwórz plik `.env` w katalogu głównym projektu (współdzielony z frontendem):
+Create a `.env` file in the project root directory (shared with frontend):
 
 ```bash
 # Spotify API
@@ -80,9 +80,9 @@ SUPABASE_SERVICE_KEY=your_service_key
 DATABASE_URL=postgresql://...
 
 # URLs
-FRONTEND_URL=https://192.168.0.93:5173
-BACKEND_URL=https://192.168.0.93:8888
-SERVER_BACKEND_URL=https://192.168.0.93:3001
+FRONTEND_URL=https://{local ip}:5173
+BACKEND_URL=https://{local ip}:8888
+SERVER_BACKEND_URL=https://{local ip}:3001
 
 # Other
 NODE_ENV=development
@@ -93,13 +93,13 @@ AUTH_PORT=8888
 
 ### 1. Auth Server (Port 8888)
 
-Express server obsługujący:
+Express server handling:
 - Spotify OAuth 2.0 authentication
 - Token management & refresh
-- API routes dla user data, top artists, top tracks
+- API routes for user data, top artists, top tracks
 - Playback control endpoints
 
-**Główne endpointy:**
+**Main endpoints:**
 - `GET /login` - Spotify OAuth initiation
 - `GET /callback` - OAuth callback
 - `GET /refresh_token` - Token refresh
@@ -110,22 +110,22 @@ Express server obsługujący:
 
 ### 2. Socket.IO Server (Port 3001)
 
-WebSocket server dla multiplayer quiz game:
+WebSocket server for multiplayer quiz game:
 - Room creation & joining
 - Real-time question distribution
 - Score tracking
 - Timer synchronization
 
 **Socket Events:**
-- `createRoom` - Stwórz pokój gry
-- `joinRoom` - Dołącz do pokoju
-- `hostQuestions` - Wyślij pytania
-- `submitAnswer` - Wyślij odpowiedź
-- `questionStart` / `questionEnd` - Synchronizacja pytań
+- `createRoom` - Create game room
+- `joinRoom` - Join room
+- `hostQuestions` - Send questions
+- `submitAnswer` - Submit answer
+- `questionStart` / `questionEnd` - Question synchronization
 
 ### 3. Database Layer
 
-Serwisy do interakcji z Supabase PostgreSQL:
+Services for interacting with Supabase PostgreSQL:
 - User management
 - Top artists/tracks storage
 - Quiz history
@@ -133,23 +133,23 @@ Serwisy do interakcji z Supabase PostgreSQL:
 
 ## 📝 Scripts
 
-| Komenda | Opis |
-|---------|------|
+| Command | Description |
+|---------|-------------|
 | `npm run dev` | Start auth + socket + db check |
-| `npm run dev:auth` | Tylko auth server (8888) |
-| `npm run dev:socket` | Tylko socket server (3001) |
-| `npm run db:check` | Sprawdź połączenie z DB |
+| `npm run dev:auth` | Auth server only (8888) |
+| `npm run dev:socket` | Socket server only (3001) |
+| `npm run db:check` | Check database connection |
 | `npm run build` | Compile TypeScript |
 | `npm run start:auth` | Production auth server |
 | `npm run start:socket` | Production socket server |
 
 ## 🔐 SSL Certificates (Development)
 
-Backend używa HTTPS w development. Certyfikaty są kopiowane z głównego katalogu:
+Backend uses HTTPS in development. Certificates are copied from main directory:
 - `private.key`
 - `certificate.crt`
 
-Dla produkcji użyj prawdziwych certyfikatów (Let's Encrypt).
+For production, use real certificates (Let's Encrypt).
 
 ## 🚢 Deployment
 
@@ -166,13 +166,13 @@ npm run start:socket &
 
 ### VPS Deployment
 
-1. Zainstaluj Node.js na serwerze
-2. Sklonuj projekt i zainstaluj zależności
-3. Setup NGINX jako reverse proxy
-4. Użyj PM2 do zarządzania procesami:
+1. Install Node.js on server
+2. Clone project and install dependencies
+3. Setup NGINX as reverse proxy
+4. Use PM2 for process management:
 
 ```bash
-# Zainstaluj PM2
+# Install PM2
 npm install -g pm2
 
 # Start services
@@ -184,7 +184,7 @@ pm2 save
 pm2 startup
 ```
 
-### Environment dla Production
+### Environment for Production
 
 ```bash
 NODE_ENV=production
@@ -197,25 +197,23 @@ SERVER_BACKEND_URL=https://api.yourdomain.com:3001
 
 ### Port already in use
 ```bash
-# Znajdź proces
+# Find process
 lsof -i :8888
 lsof -i :3001
 
-# Zabij proces
+# Kill process
 kill -9 <PID>
 ```
 
 ### Database connection failed
-- Sprawdź `DATABASE_URL` w `.env`
-- Upewnij się że Supabase projekt działa
-- Sprawdź czy IP serwera jest dozwolony w Supabase
+- Check `DATABASE_URL` in `.env`
+- Ensure Supabase project is running
+- Check if server IP is allowed in Supabase
 
 ### SSL certificate errors
-- W development: Zaakceptuj self-signed cert w przeglądarce
-- W production: Użyj prawdziwego certyfikatu (Let's Encrypt)
+- In development: Accept self-signed cert in browser
+- In production: Use real certificate (Let's Encrypt)
 
 ---
 
-**Część projektu Spotify Guesser Monorepo 🔧**
-
-
+**Part of Spotify Guesser Monorepo 🔧**

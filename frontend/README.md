@@ -1,6 +1,6 @@
-    # 🎨 Spotify Guesser - Frontend
+# 🎨 Spotify Guesser - Frontend
 
-React frontend aplikacji Spotify Guesser zbudowany z Vite, TypeScript i Tailwind CSS.
+React frontend for Spotify Guesser application built with Vite, TypeScript, and Tailwind CSS.
 
 ## 🛠 Tech Stack
 
@@ -25,11 +25,11 @@ npm install
 # Start dev server
 npm run dev
 
-# Start dev server (z root directory)
+# Start dev server (from root directory)
 cd .. && npm run dev:frontend
 ```
 
-Frontend będzie dostępny na: `https://192.168.0.93:5173`
+Frontend will be available at: `{ip}`
 
 ## 🏗️ Build
 
@@ -37,11 +37,11 @@ Frontend będzie dostępny na: `https://192.168.0.93:5173`
 # Development build
 npm run build
 
-# Production build (bez SSL config)
+# Production build (without SSL config)
 npm run build:prod
 ```
 
-Build wygeneruje folder `dist/` gotowy do deployment.
+Build will generate `dist/` folder ready for deployment.
 
 ## 📁 Structure
 
@@ -64,20 +64,20 @@ frontend/
 
 ### Environment Variables
 
-Utwórz plik `.env` w katalogu `frontend/`:
+Create a `.env` file in the `frontend/` directory:
 
 ```bash
-VITE_FRONTEND_URL=https://192.168.0.93:5173
-VITE_BACKEND_URL=https://192.168.0.93:8888
-VITE_SERVER_BACKEND_URL=https://192.168.0.93:3001
+VITE_FRONTEND_URL=https://{local ip}:5173
+VITE_BACKEND_URL=https://{local ip}:8888
+VITE_SERVER_BACKEND_URL=https://{local ip}:3001
 VITE_SUPABASE_URL=https://your-project.supabase.co
 VITE_SPOTIFY_CLIENT_ID=your_client_id
 ```
 
 ### Vite Config
 
-- `vite.config.ts` - Development (z SSL)
-- `vite.config.prod.ts` - Production (bez SSL)
+- `vite.config.ts` - Development (with SSL)
+- `vite.config.prod.ts` - Production (without SSL)
 
 ## 📱 Features
 
@@ -90,7 +90,7 @@ VITE_SPOTIFY_CLIENT_ID=your_client_id
 
 ## 🎨 Styling
 
-Używamy Tailwind CSS z konfiguracją CSS variables dla theming:
+We use Tailwind CSS with CSS variables configuration for theming:
 
 ```tsx
 // Example
@@ -103,22 +103,22 @@ Używamy Tailwind CSS z konfiguracją CSS variables dla theming:
 
 ## 🧩 Components
 
-UI komponenty bazują na shadcn/ui i Radix UI:
+UI components are based on shadcn/ui and Radix UI:
 
 ```bash
-# Dodaj nowy komponent
+# Add new component
 npx shadcn-ui@latest add button
 ```
 
 ## 📝 Scripts
 
-| Komenda | Opis |
-|---------|------|
-| `npm run dev` | Start dev server z HMR |
-| `npm run build` | Build dla development |
-| `npm run build:prod` | Build dla production |
+| Command | Description |
+|---------|-------------|
+| `npm run dev` | Start dev server with HMR |
+| `npm run build` | Build for development |
+| `npm run build:prod` | Build for production |
 | `npm run preview` | Preview production build |
-| `npm run lint` | Uruchom ESLint |
+| `npm run lint` | Run ESLint |
 
 ## 🚢 Deployment
 
@@ -128,12 +128,12 @@ npx shadcn-ui@latest add button
 # Build
 npm run build:prod
 
-# Upload zawartość dist/ na serwer
+# Upload dist/ contents to server
 ```
 
-### Environment dla Production
+### Environment for Production
 
-Upewnij się że zmienne środowiskowe wskazują na produkcyjne URLe:
+Make sure environment variables point to production URLs:
 
 ```bash
 VITE_FRONTEND_URL=https://yourdomain.com
@@ -142,5 +142,4 @@ VITE_BACKEND_URL=https://api.yourdomain.com
 
 ---
 
-**Część projektu Spotify Guesser Monorepo 🎵**
-
+**Part of Spotify Guesser Monorepo 🎵**
